@@ -220,32 +220,28 @@ public class VoxelGrid
 
     /// <summary>
     /// Applies a text stencil at a specific angle within a designated slot.
-    /// confinementHalfWidthX is a hard fence on the grid's X-axis: voxels outside it are
-    /// never touched. For Extrude, pass the letter's own HalfWidthX (from ComputeLetterBounds) —
-    /// it's an exact match for the d-bound, not an approximation. For Intersect, pass the
-    /// PAIRED Extrude letter's HalfWidthX — this is what stops Intersect from reaching into
-    /// neighboring slots, and it's also why Intersect no longer needs (or uses) any depth/d bound
-    /// of its own: outside this fence, Extrude never placed anything, so there's nothing to erase.
-    /// </summary>
-    /// <summary>
-    /// Applies a text stencil at a specific angle within a designated slot.
+    /// Uses TrueBottom for correct vertical alignment so letters sit on the base plate.
     /// </summary>
     public void ApplyTextStencil(Stencil stencil, float angleDeg, CarveOperation operation,
-    float slotCenterX, float uniformScale, float slotWidth,
-    float confinementHalfWidthX, float baseThicknessVoxels = 0f)
+        float slotCenterX, float uniformScale, float slotWidth,
+        float confinementHalfWidthX, float baseThicknessVoxels = 0f)
     {
         float rad = angleDeg * (float)Math.PI / 180.0f;
         float cosA = (float)Math.Cos(rad);
         float sinA = (float)Math.Sin(rad);
 
-        // Shift center down so letters sit on top of the base plate
         float slotCenterY = Height / 2.0f;
-        float slotCenterZ = (Depth / 2.0f) - (baseThicknessVoxels / 2.0f);  // ← Key change
+
+        // Align the TRUE bottom of the letter just above the base plate
+        float effectiveStencilHeight = stencil.TrueBottom; // actual content height in pixels
+        float visualBottomZ = baseThicknessVoxels + 0.0f; // small safety gap (adjust if needed)
+        float slotCenterZ = visualBottomZ + (effectiveStencilHeight * uniformScale / 2.0f);
 
         float maxDepth = 0f;
         if (operation == CarveOperation.Extrude)
         {
             float u_half = (stencil.Width / 2.0f) * uniformScale;
+
             float maxDepthY = float.MaxValue;
             if (Math.Abs(cosA) > 0.0001f)
                 maxDepthY = ((Height / 2.0f) - (u_half * Math.Abs(sinA))) / Math.Abs(cosA);
@@ -260,6 +256,7 @@ public class VoxelGrid
 
         Parallel.For(0, Width, x =>
         {
+            // Hard X confinement (slot fence)
             if (Math.Abs((x + 0.5f) - slotCenterX) > confinementHalfWidthX)
                 return;
 
@@ -267,7 +264,7 @@ public class VoxelGrid
             {
                 for (int z = 0; z < Depth; z++)
                 {
-                    // Selective base protection: only for Cut/Intersect
+                    // Selective base protection: only Cut/Intersect operations
                     if (operation != CarveOperation.Extrude && z < baseThicknessVoxels)
                         continue;
 
@@ -292,11 +289,13 @@ public class VoxelGrid
 
                     if (operation == CarveOperation.Extrude)
                     {
-                        if (isSolid) SetVoxel(x, y, z, true);
+                        if (isSolid)
+                            SetVoxel(x, y, z, true);
                     }
                     else if (operation == CarveOperation.Intersect)
                     {
-                        if (!isSolid) SetVoxel(x, y, z, false);
+                        if (!isSolid)
+                            SetVoxel(x, y, z, false);
                     }
                 }
             }

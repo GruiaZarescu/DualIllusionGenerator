@@ -43,6 +43,7 @@
                         g.DrawString(c.ToString(), renderFont, Brushes.Black, 0, 0);
 
                         Stencil stencil = StencilManager.CreateFromBitmap(charBmp, autoFix: true);
+                        stencil.ComputeTrueBottom();
                         stencils.Add(stencil);
                     }
                 }
