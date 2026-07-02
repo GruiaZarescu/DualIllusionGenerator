@@ -166,15 +166,54 @@ namespace DualIllusionGenerator
                                 int totalSlots = extrudeStencils.Count;
                                 int cutOffset = (totalSlots - cutStencils.Count) / 2;
 
+                                // 1. Find the maximum letter width and height across BOTH texts
+                                float maxLetterWidth = 0;
+                                float maxStencilHeight = 0;
+                                foreach (var s in extrudeStencils)
+                                {
+                                    if (s.Width > maxLetterWidth) maxLetterWidth = s.Width;
+                                    if (s.Height > maxStencilHeight) maxStencilHeight = s.Height;
+                                }
+                                foreach (var s in cutStencils)
+                                {
+                                    if (s.Width > maxLetterWidth) maxLetterWidth = s.Width;
+                                    if (s.Height > maxStencilHeight) maxStencilHeight = s.Height;
+                                }
+
+                                // 2. Calculate uniform scale
+                                float slotWidth = (float)voxelCountX / totalSlots;
+                                float cos45 = (float)Math.Cos(45.0f * Math.PI / 180.0f); // ~0.707f
+
+                                // We want the text plane's X-projection to take up 80% of the slot width
+                                // X-projection = maxLetterWidth * uniformScale * cos(45)
+                                float scaleX = (slotWidth * 0.8f) / (maxLetterWidth * cos45);
+                                float scaleZ = (voxelCountZ * 0.9f) / maxStencilHeight;
+                                float uniformScale = Math.Min(scaleX, scaleZ);
+
+                                // 3. Calculate slot centers
+                                List<float> slotCenters = new List<float>();
+                                for (int i = 0; i < totalSlots; i++)
+                                {
+                                    float slotCenterX = slotWidth * (i + 0.5f);
+                                    slotCenters.Add(slotCenterX);
+                                }
+
+                                // 4. Apply stencils
+                                // Extrude first, and remember each letter's exact occupied X-range —
+                                // that's what the paired Intersect call needs to stay confined correctly.
+                                List<VoxelGrid.LetterBounds> extrudeBoundsList = new List<VoxelGrid.LetterBounds>();
                                 for (int i = 0; i < extrudeStencils.Count; i++)
                                 {
-                                    grid.ApplyTextStencil(extrudeStencils[i], -45.0f, CarveOperation.Extrude, i, totalSlots);
+                                    var bounds = grid.ComputeLetterBounds(extrudeStencils[i], -45.0f, uniformScale, slotWidth);
+                                    extrudeBoundsList.Add(bounds);
+                                    grid.ApplyTextStencil(extrudeStencils[i], -45.0f, CarveOperation.Extrude, slotCenters[i], uniformScale, slotWidth, bounds.HalfWidthX);
                                 }
 
                                 for (int i = 0; i < cutStencils.Count; i++)
                                 {
                                     int targetSlot = i + cutOffset;
-                                    grid.ApplyTextStencil(cutStencils[i], 45.0f, CarveOperation.Cut, targetSlot, totalSlots);
+                                    // Confine strictly to the region the paired Extrude letter actually occupies.
+                                    grid.ApplyTextStencil(cutStencils[i], 45.0f, CarveOperation.Intersect, slotCenters[targetSlot], uniformScale, slotWidth, extrudeBoundsList[targetSlot].HalfWidthX);
                                 }
                             }
 
