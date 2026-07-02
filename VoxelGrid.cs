@@ -227,14 +227,14 @@ public class VoxelGrid
     /// neighboring slots, and it's also why Intersect no longer needs (or uses) any depth/d bound
     /// of its own: outside this fence, Extrude never placed anything, so there's nothing to erase.
     /// </summary>
-    public void ApplyTextStencil(Stencil stencil, float angleDeg, CarveOperation operation, float slotCenterX, float uniformScale, float slotWidth, float confinementHalfWidthX)
+    public void ApplyTextStencil(Stencil stencil, float angleDeg, CarveOperation operation, float slotCenterX, float uniformScale, float slotWidth, float confinementHalfWidthX, float zOffsetVoxels = 0f)
     {
         float rad = angleDeg * (float)Math.PI / 180.0f;
         float cosA = (float)Math.Cos(rad);
         float sinA = (float)Math.Sin(rad);
 
         float slotCenterY = (float)Height / 2.0f;
-        float slotCenterZ = (float)Depth / 2.0f;
+        float slotCenterZ = zOffsetVoxels + ((Depth - zOffsetVoxels) / 2.0f);
 
         float maxDepth = 0f;
         if (operation == CarveOperation.Extrude)
@@ -292,6 +292,23 @@ public class VoxelGrid
                     }
                 }
             }
+        });
+    }
+
+    /// <summary>
+    /// Fills a solid slab of the given thickness at the bottom (z=0), across the
+    /// full X/Y footprint, so physically separate carved pieces (like letters)
+    /// have something to stand on and print as one connected part.
+    /// </summary>
+    public void AddBasePlate(int thicknessVoxels)
+    {
+        if (thicknessVoxels <= 0) return;
+        int zMax = Math.Min(thicknessVoxels, Depth);
+        Parallel.For(0, Width, x =>
+        {
+            for (int y = 0; y < Height; y++)
+                for (int z = 0; z < zMax; z++)
+                    SetVoxel(x, y, z, true);
         });
     }
 

@@ -14,6 +14,13 @@ namespace DualIllusionGenerator
             InitializeComponent();
         }
 
+        private static int CountGlyphs(string s)
+        {
+            int n = 0;
+            foreach (char c in s) if (!char.IsWhiteSpace(c)) n++;
+            return n;
+        }
+
         private async void btnExport_Click(object sender, EventArgs e)
         {
             // 1. Determine Voxel Size in mm based on RadioButtons
@@ -32,6 +39,9 @@ namespace DualIllusionGenerator
                 return;
             }
 
+            // VALIDATION AND UI READING
+            bool isDualImageMode = (tabModeSelector.SelectedTab == tabDualImage);
+
             // 2. Read desired physical dimensions in mm from the UI
             float targetSizeXMm = (float)nudSizeX.Value;
             float targetSizeYMm = (float)nudSizeY.Value;
@@ -40,13 +50,22 @@ namespace DualIllusionGenerator
             // 3. Calculate number of voxels needed
             int voxelCountX = (int)Math.Floor(targetSizeXMm / voxelSizeMm);
             int voxelCountY = (int)Math.Floor(targetSizeYMm / voxelSizeMm);
-            int voxelCountZ = (int)Math.Floor(targetSizeZMm / voxelSizeMm);
+            int letterVoxelCountZ = (int)Math.Floor(targetSizeZMm / voxelSizeMm);
 
-            if (voxelCountX < 1 || voxelCountY < 1 || voxelCountZ < 1)
+            if (voxelCountX < 1 || voxelCountY < 1 || letterVoxelCountZ < 1)
             {
                 MessageBox.Show("Dimensions are too small for the selected voxel density.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
+            int baseThicknessVoxels = 0;
+            if (!isDualImageMode)
+            {
+                float baseThicknessMm = Math.Max(3.0f, Math.Min(7.0f, targetSizeZMm * 0.05f));
+                baseThicknessVoxels = Math.Max(1, (int)Math.Ceiling(baseThicknessMm / voxelSizeMm));
+            }
+
+            int voxelCountZ = letterVoxelCountZ + baseThicknessVoxels;
 
             long totalVoxels = (long)voxelCountX * voxelCountY * voxelCountZ;
             long maxVoxels = 2000000000; // 2 billion voxels soft limit 
@@ -67,9 +86,7 @@ namespace DualIllusionGenerator
                 }
             }
 
-            // VALIDATION AND UI READING
-            bool isDualImageMode = (tabModeSelector.SelectedTab == tabDualImage);
-
+            
             // Variables for Dual Image Mode
             CarveOperation op1 = CarveOperation.Extrude;
             CarveOperation op2 = CarveOperation.Cut;
@@ -119,6 +136,14 @@ namespace DualIllusionGenerator
                 text2 = txtText2.Text.ToUpper();
                 localFont1 = _font1;
                 localFont2 = _font2;
+
+                // Always treat the longer text as "text1" internally so the model's
+                // front-facing side doesn't flip depending on which box has more characters.
+                if (CountGlyphs(text2) > CountGlyphs(text1))
+                {
+                    (text1, text2) = (text2, text1);
+                    (localFont1, localFont2) = (localFont2, localFont1);
+                }
             }
 
             // Ask user where to save the file
@@ -156,6 +181,10 @@ namespace DualIllusionGenerator
                             }
                             else
                             {
+
+                                if (baseThicknessVoxels > 0)
+                                    grid.AddBasePlate(baseThicknessVoxels);
+
                                 // Dual Text Mode
                                 List<Stencil> stencils1 = TextManager.CreateStencilsFromText(text1, localFont1);
                                 List<Stencil> stencils2 = TextManager.CreateStencilsFromText(text2, localFont2);
@@ -187,7 +216,7 @@ namespace DualIllusionGenerator
 
                                 // We want the text plane's X-projection to take up 80% of the slot width
                                 float scaleX = (slotWidth * 0.8f) / (maxLetterWidth * cos45);
-                                float scaleZ = (voxelCountZ * 0.9f) / maxStencilHeight;
+                                float scaleZ = (letterVoxelCountZ * 0.9f) / maxStencilHeight;
 
                                 // NEW: at +/-45deg, letter 1's extrusion depth (maxDepth) IS letter 2's width axis —
                                 // they're the same physical direction in the grid. So the extrude letter's depth
@@ -242,14 +271,13 @@ namespace DualIllusionGenerator
                                 {
                                     var bounds = grid.ComputeLetterBounds(extrudeStencils[i], -45.0f, uniformScale, slotWidth);
                                     extrudeBoundsList.Add(bounds);
-                                    grid.ApplyTextStencil(extrudeStencils[i], -45.0f, CarveOperation.Extrude, slotCenters[i], uniformScale, slotWidth, bounds.HalfWidthX);
+                                    grid.ApplyTextStencil(extrudeStencils[i], -45.0f, CarveOperation.Extrude, slotCenters[i], uniformScale, slotWidth, bounds.HalfWidthX, baseThicknessVoxels);
                                 }
 
                                 for (int i = 0; i < cutStencils.Count; i++)
                                 {
                                     int targetSlot = i + cutOffset;
-                                    // Confine strictly to the region the paired Extrude letter actually occupies.
-                                    grid.ApplyTextStencil(cutStencils[i], 45.0f, CarveOperation.Intersect, slotCenters[targetSlot], uniformScale, slotWidth, extrudeBoundsList[targetSlot].HalfWidthX);
+                                    grid.ApplyTextStencil(cutStencils[i], 45.0f, CarveOperation.Intersect, slotCenters[targetSlot], uniformScale, slotWidth, extrudeBoundsList[targetSlot].HalfWidthX, baseThicknessVoxels);
                                 }
                             }
 
