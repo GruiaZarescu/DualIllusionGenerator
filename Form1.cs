@@ -183,12 +183,48 @@ namespace DualIllusionGenerator
                                 // 2. Calculate uniform scale
                                 float slotWidth = (float)voxelCountX / totalSlots;
                                 float cos45 = (float)Math.Cos(45.0f * Math.PI / 180.0f); // ~0.707f
+                                float sin45 = (float)Math.Sin(45.0f * Math.PI / 180.0f); // ~0.707f
 
                                 // We want the text plane's X-projection to take up 80% of the slot width
-                                // X-projection = maxLetterWidth * uniformScale * cos(45)
                                 float scaleX = (slotWidth * 0.8f) / (maxLetterWidth * cos45);
                                 float scaleZ = (voxelCountZ * 0.9f) / maxStencilHeight;
-                                float uniformScale = Math.Min(scaleX, scaleZ);
+
+                                // NEW: at +/-45deg, letter 1's extrusion depth (maxDepth) IS letter 2's width axis —
+                                // they're the same physical direction in the grid. So the extrude letter's depth
+                                // allowance must be at least half the paired cut letter's stencil width, in physical
+                                // (scaled) units, or the cut letter gets truncated exactly like in the screenshots.
+                                // maxDepthX/maxDepthY both reduce to: minConst - (We/2)*scale - 1, where
+                                // minConst = min(slotWidth, voxelCountY) / (2*sin45). Requiring that this stays
+                                // >= (Wc/2)*scale for every paired slot gives a hard ceiling on uniformScale:
+                                float minConst = Math.Min(slotWidth, (float)voxelCountY) / (2f * sin45);
+                                float scaleFit = float.MaxValue;
+                                for (int i = 0; i < cutStencils.Count; i++)
+                                {
+                                    int targetSlot = i + cutOffset;
+                                    float we = extrudeStencils[targetSlot].Width;
+                                    float wc = cutStencils[i].Width;
+                                    float pairScaleFit = (minConst - 1f) / ((we + wc) / 2f);
+                                    if (pairScaleFit < scaleFit) scaleFit = pairScaleFit;
+                                }
+
+                                if (scaleFit <= 0)
+                                {
+                                    throw new Exception(
+                                        "This much text can't physically fit at this X size/voxel density — even at zero scale, " +
+                                        "letter 2 would still be wider than letter 1's available extrusion depth. " +
+                                        "Reduce character count or increase the X dimension.");
+                                }
+
+                                float uniformScale = Math.Min(Math.Min(scaleX, scaleZ), scaleFit);
+
+                                if (scaleFit < Math.Min(scaleX, scaleZ) * 0.75f)
+                                {
+                                    MessageBox.Show(
+                                        "Text was shrunk further than your size/height settings alone would require, " +
+                                        "so the shorter word's letters fully fit within the depth the longer word's letters allow. " +
+                                        "Consider fewer characters, or a larger X dimension, for larger text.",
+                                        "Text Density High", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                }
 
                                 // 3. Calculate slot centers
                                 List<float> slotCenters = new List<float>();
