@@ -227,20 +227,25 @@ public class VoxelGrid
     /// neighboring slots, and it's also why Intersect no longer needs (or uses) any depth/d bound
     /// of its own: outside this fence, Extrude never placed anything, so there's nothing to erase.
     /// </summary>
-    public void ApplyTextStencil(Stencil stencil, float angleDeg, CarveOperation operation, float slotCenterX, float uniformScale, float slotWidth, float confinementHalfWidthX, float zOffsetVoxels = 0f)
+    /// <summary>
+    /// Applies a text stencil at a specific angle within a designated slot.
+    /// </summary>
+    public void ApplyTextStencil(Stencil stencil, float angleDeg, CarveOperation operation,
+    float slotCenterX, float uniformScale, float slotWidth,
+    float confinementHalfWidthX, float baseThicknessVoxels = 0f)
     {
         float rad = angleDeg * (float)Math.PI / 180.0f;
         float cosA = (float)Math.Cos(rad);
         float sinA = (float)Math.Sin(rad);
 
-        float slotCenterY = (float)Height / 2.0f;
-        float slotCenterZ = zOffsetVoxels + ((Depth - zOffsetVoxels) / 2.0f);
+        // Shift center down so letters sit on top of the base plate
+        float slotCenterY = Height / 2.0f;
+        float slotCenterZ = (Depth / 2.0f) - (baseThicknessVoxels / 2.0f);  // ← Key change
 
         float maxDepth = 0f;
         if (operation == CarveOperation.Extrude)
         {
             float u_half = (stencil.Width / 2.0f) * uniformScale;
-
             float maxDepthY = float.MaxValue;
             if (Math.Abs(cosA) > 0.0001f)
                 maxDepthY = ((Height / 2.0f) - (u_half * Math.Abs(sinA))) / Math.Abs(cosA);
@@ -255,15 +260,17 @@ public class VoxelGrid
 
         Parallel.For(0, Width, x =>
         {
-            // Hard fence, independent of either letter's rotation. This is what actually
-            // confines the operation to its own slot — depth-bounding along a diagonal
-            // was never the right tool for that job.
-            if (Math.Abs((x + 0.5f) - slotCenterX) > confinementHalfWidthX) return;
+            if (Math.Abs((x + 0.5f) - slotCenterX) > confinementHalfWidthX)
+                return;
 
             for (int y = 0; y < Height; y++)
             {
                 for (int z = 0; z < Depth; z++)
                 {
+                    // Selective base protection: only for Cut/Intersect
+                    if (operation != CarveOperation.Extrude && z < baseThicknessVoxels)
+                        continue;
+
                     float localX = x - slotCenterX;
                     float localY = y - slotCenterY;
                     float localZ = z - slotCenterZ;
@@ -271,7 +278,8 @@ public class VoxelGrid
                     if (operation == CarveOperation.Extrude)
                     {
                         float d = -localX * sinA + localY * cosA;
-                        if (d < -maxDepth || d > maxDepth) continue;
+                        if (d < -maxDepth || d > maxDepth)
+                            continue;
                     }
 
                     float u = localX * cosA + localY * sinA;
