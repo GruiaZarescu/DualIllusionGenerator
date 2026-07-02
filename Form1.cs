@@ -132,8 +132,8 @@ namespace DualIllusionGenerator
             }
             else
             {
-                text1 = txtText1.Text.ToUpper();
-                text2 = txtText2.Text.ToUpper();
+                text1 = txtText1.Text;
+                text2 = txtText2.Text;
                 localFont1 = _font1;
                 localFont2 = _font2;
 
@@ -281,7 +281,9 @@ namespace DualIllusionGenerator
                                 }
                             }
 
-                            VoxelToStlExporter.Export(grid, filePath);
+                            //VoxelToStlExporter.Export(grid, filePath);
+                            MeshData mesh = VoxelMesher.Generate(grid, isoLevel: 0.5f);
+                            VoxelToStlExporter.ExportMeshToStl(mesh, filePath);
                         });
 
                         MessageBox.Show("Successfully exported to STL!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
