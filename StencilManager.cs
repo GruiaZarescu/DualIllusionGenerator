@@ -188,6 +188,63 @@ namespace DualIllusionGenerator
             }
         }
 
+        /// <summary>
+        /// Creates a Stencil directly from a Bitmap object.
+        /// </summary>
+        public static Stencil CreateFromBitmap(Bitmap bmp, bool autoFix = true)
+        {
+            BitmapData bmpData = bmp.LockBits(
+                new Rectangle(0, 0, bmp.Width, bmp.Height),
+                ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppArgb
+            );
+
+            int bytes = Math.Abs(bmpData.Stride) * bmp.Height;
+            byte[] rgbaValues = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(bmpData.Scan0, rgbaValues, 0, bytes);
+            bmp.UnlockBits(bmpData);
+
+            bool[,] rawMask = new bool[bmp.Width, bmp.Height];
+            int minX = bmp.Width; int minY = bmp.Height; int maxX = -1; int maxY = -1;
+
+            for (int x = 0; x < bmp.Width; x++)
+            {
+                for (int y = 0; y < bmp.Height; y++)
+                {
+                    int pixelIndex = (y * bmpData.Stride) + (x * 4);
+                    byte originalAlpha = rgbaValues[pixelIndex + 3];
+                    byte alpha = autoFix ? (originalAlpha > 128 ? (byte)255 : (byte)0) : originalAlpha;
+
+                    if (alpha == 255)
+                    {
+                        rawMask[x, y] = true;
+                        if (x < minX) minX = x; if (y < minY) minY = y;
+                        if (x > maxX) maxX = x; if (y > maxY) maxY = y;
+                    }
+                    else if (alpha != 0 && !autoFix)
+                    {
+                        throw new AntiAliasingException("Image contains pixels with alpha values between 1 and 254.");
+                    }
+                }
+            }
+
+            if (maxX == -1) throw new Exception("Character is empty or transparent.");
+
+            // (Skipping dust removal for text, as anti-alias fix usually cleans it up nicely)
+            int trimmedWidth = maxX - minX + 1;
+            int trimmedHeight = maxY - minY + 1;
+            Stencil stencil = new Stencil(trimmedWidth, trimmedHeight);
+
+            for (int x = 0; x < trimmedWidth; x++)
+            {
+                for (int y = 0; y < trimmedHeight; y++)
+                {
+                    stencil.Mask[x, y] = rawMask[minX + x, minY + y];
+                }
+            }
+            return stencil;
+        }
+
         // --- DEBUG HELPER ---
         // Explicitly named to ensure we know it's for debugging
         private static void DEBUG_ExportMask(bool[,] mask, int width, int height, string fileName)

@@ -43,12 +43,57 @@
             labelHeight = new Label();
             labelDepth = new Label();
             labelWidth = new Label();
+            tabModeSelector = new TabControl();
+            tabDualText = new TabPage();
+            lblFont2 = new Label();
+            lblFont1 = new Label();
+            btnFont2 = new Button();
+            btnFont1 = new Button();
+            txtText2 = new TextBox();
+            txtText1 = new TextBox();
+            labelText2 = new Label();
+            labelText1 = new Label();
+            tabDualImage = new TabPage();
+            groupBox2 = new GroupBox();
+            nudOffY2 = new NumericUpDown();
+            chkStretch2 = new CheckBox();
+            nudOffX2 = new NumericUpDown();
+            label2 = new Label();
+            nudPad2 = new NumericUpDown();
+            label6 = new Label();
+            cbAction2 = new ComboBox();
+            label7 = new Label();
+            lblImg2Status = new Label();
+            label8 = new Label();
+            btnLoadImage2 = new Button();
+            groupBox1 = new GroupBox();
+            nudOffY1 = new NumericUpDown();
+            nudOffX1 = new NumericUpDown();
+            nudPad1 = new NumericUpDown();
+            label5 = new Label();
+            label4 = new Label();
+            label3 = new Label();
+            chkStretch1 = new CheckBox();
+            label1 = new Label();
+            cbAction1 = new ComboBox();
+            lblImg1Status = new Label();
             btnLoadImage1 = new Button();
             VoxelDensityGroupBox.SuspendLayout();
             CubeDimensionsGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudSizeZ).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudSizeY).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudSizeX).BeginInit();
+            tabModeSelector.SuspendLayout();
+            tabDualText.SuspendLayout();
+            tabDualImage.SuspendLayout();
+            groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)nudOffY2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudOffX2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudPad2).BeginInit();
+            groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)nudOffY1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudOffX1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudPad1).BeginInit();
             SuspendLayout();
             // 
             // btnExport
@@ -218,12 +263,354 @@
             labelWidth.Text = "Width(X)";
             labelWidth.Click += label1_Click;
             // 
+            // tabModeSelector
+            // 
+            tabModeSelector.Controls.Add(tabDualText);
+            tabModeSelector.Controls.Add(tabDualImage);
+            tabModeSelector.Location = new Point(43, 222);
+            tabModeSelector.Name = "tabModeSelector";
+            tabModeSelector.SelectedIndex = 0;
+            tabModeSelector.Size = new Size(803, 255);
+            tabModeSelector.TabIndex = 0;
+            // 
+            // tabDualText
+            // 
+            tabDualText.Controls.Add(lblFont2);
+            tabDualText.Controls.Add(lblFont1);
+            tabDualText.Controls.Add(btnFont2);
+            tabDualText.Controls.Add(btnFont1);
+            tabDualText.Controls.Add(txtText2);
+            tabDualText.Controls.Add(txtText1);
+            tabDualText.Controls.Add(labelText2);
+            tabDualText.Controls.Add(labelText1);
+            tabDualText.Location = new Point(4, 24);
+            tabDualText.Name = "tabDualText";
+            tabDualText.Padding = new Padding(3);
+            tabDualText.Size = new Size(795, 227);
+            tabDualText.TabIndex = 0;
+            tabDualText.Text = "Dual Text";
+            tabDualText.UseVisualStyleBackColor = true;
+            // 
+            // lblFont2
+            // 
+            lblFont2.AutoSize = true;
+            lblFont2.Location = new Point(328, 84);
+            lblFont2.Name = "lblFont2";
+            lblFont2.Size = new Size(44, 15);
+            lblFont2.TabIndex = 11;
+            lblFont2.Text = "label10";
+            // 
+            // lblFont1
+            // 
+            lblFont1.AutoSize = true;
+            lblFont1.Location = new Point(324, 47);
+            lblFont1.Name = "lblFont1";
+            lblFont1.Size = new Size(38, 15);
+            lblFont1.TabIndex = 10;
+            lblFont1.Text = "label9";
+            // 
+            // btnFont2
+            // 
+            btnFont2.Location = new Point(220, 81);
+            btnFont2.Name = "btnFont2";
+            btnFont2.Size = new Size(75, 23);
+            btnFont2.TabIndex = 9;
+            btnFont2.Text = "Font 2";
+            btnFont2.UseVisualStyleBackColor = true;
+            btnFont2.Click += btnFont2_Click;
+            // 
+            // btnFont1
+            // 
+            btnFont1.Location = new Point(220, 45);
+            btnFont1.Name = "btnFont1";
+            btnFont1.Size = new Size(75, 23);
+            btnFont1.TabIndex = 8;
+            btnFont1.Text = "Font 1";
+            btnFont1.UseVisualStyleBackColor = true;
+            btnFont1.Click += btnFont1_Click;
+            // 
+            // txtText2
+            // 
+            txtText2.Location = new Point(84, 81);
+            txtText2.Name = "txtText2";
+            txtText2.Size = new Size(100, 23);
+            txtText2.TabIndex = 7;
+            // 
+            // txtText1
+            // 
+            txtText1.Location = new Point(84, 45);
+            txtText1.Name = "txtText1";
+            txtText1.Size = new Size(100, 23);
+            txtText1.TabIndex = 6;
+            // 
+            // labelText2
+            // 
+            labelText2.AutoSize = true;
+            labelText2.Location = new Point(31, 84);
+            labelText2.Name = "labelText2";
+            labelText2.Size = new Size(37, 15);
+            labelText2.TabIndex = 5;
+            labelText2.Text = "Text 2";
+            // 
+            // labelText1
+            // 
+            labelText1.AutoSize = true;
+            labelText1.Location = new Point(31, 48);
+            labelText1.Name = "labelText1";
+            labelText1.Size = new Size(37, 15);
+            labelText1.TabIndex = 4;
+            labelText1.Text = "Text 1";
+            // 
+            // tabDualImage
+            // 
+            tabDualImage.Controls.Add(groupBox2);
+            tabDualImage.Controls.Add(groupBox1);
+            tabDualImage.Location = new Point(4, 24);
+            tabDualImage.Name = "tabDualImage";
+            tabDualImage.Padding = new Padding(3);
+            tabDualImage.Size = new Size(795, 227);
+            tabDualImage.TabIndex = 1;
+            tabDualImage.Text = "Dual Image";
+            tabDualImage.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(nudOffY2);
+            groupBox2.Controls.Add(chkStretch2);
+            groupBox2.Controls.Add(nudOffX2);
+            groupBox2.Controls.Add(label2);
+            groupBox2.Controls.Add(nudPad2);
+            groupBox2.Controls.Add(label6);
+            groupBox2.Controls.Add(cbAction2);
+            groupBox2.Controls.Add(label7);
+            groupBox2.Controls.Add(lblImg2Status);
+            groupBox2.Controls.Add(label8);
+            groupBox2.Controls.Add(btnLoadImage2);
+            groupBox2.Location = new Point(378, 18);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(396, 206);
+            groupBox2.TabIndex = 8;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Image 2 (Top Plane)";
+            groupBox2.Enter += groupBox2_Enter;
+            // 
+            // nudOffY2
+            // 
+            nudOffY2.Location = new Point(100, 138);
+            nudOffY2.Name = "nudOffY2";
+            nudOffY2.Size = new Size(120, 23);
+            nudOffY2.TabIndex = 20;
+            // 
+            // chkStretch2
+            // 
+            chkStretch2.AutoSize = true;
+            chkStretch2.Location = new Point(15, 49);
+            chkStretch2.Name = "chkStretch2";
+            chkStretch2.Size = new Size(205, 19);
+            chkStretch2.TabIndex = 9;
+            chkStretch2.Text = "Stretch to fit (Ignore Aspect Ratio)";
+            chkStretch2.UseVisualStyleBackColor = true;
+            // 
+            // nudOffX2
+            // 
+            nudOffX2.Location = new Point(100, 109);
+            nudOffX2.Name = "nudOffX2";
+            nudOffX2.Size = new Size(120, 23);
+            nudOffX2.TabIndex = 19;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(15, 22);
+            label2.Name = "label2";
+            label2.Size = new Size(88, 15);
+            label2.TabIndex = 7;
+            label2.Text = "Operation Type";
+            // 
+            // nudPad2
+            // 
+            nudPad2.Location = new Point(100, 80);
+            nudPad2.Maximum = new decimal(new int[] { 90, 0, 0, 0 });
+            nudPad2.Name = "nudPad2";
+            nudPad2.Size = new Size(120, 23);
+            nudPad2.TabIndex = 18;
+            nudPad2.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(15, 141);
+            label6.Name = "label6";
+            label6.Size = new Size(49, 15);
+            label6.TabIndex = 17;
+            label6.Text = "Offset Y";
+            // 
+            // cbAction2
+            // 
+            cbAction2.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbAction2.FormattingEnabled = true;
+            cbAction2.Items.AddRange(new object[] { "Extrude", "Cut" });
+            cbAction2.Location = new Point(109, 19);
+            cbAction2.Name = "cbAction2";
+            cbAction2.Size = new Size(121, 23);
+            cbAction2.TabIndex = 6;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(15, 113);
+            label7.Name = "label7";
+            label7.Size = new Size(49, 15);
+            label7.TabIndex = 16;
+            label7.Text = "Offset X";
+            // 
+            // lblImg2Status
+            // 
+            lblImg2Status.AutoSize = true;
+            lblImg2Status.Location = new Point(176, 181);
+            lblImg2Status.Name = "lblImg2Status";
+            lblImg2Status.Size = new Size(60, 15);
+            lblImg2Status.TabIndex = 5;
+            lblImg2Status.Text = "imgStatus";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(15, 82);
+            label8.Name = "label8";
+            label8.Size = new Size(64, 15);
+            label8.TabIndex = 15;
+            label8.Text = "Padding %";
+            // 
+            // btnLoadImage2
+            // 
+            btnLoadImage2.Location = new Point(6, 177);
+            btnLoadImage2.Name = "btnLoadImage2";
+            btnLoadImage2.Size = new Size(134, 23);
+            btnLoadImage2.TabIndex = 4;
+            btnLoadImage2.Text = "Load Image 2";
+            btnLoadImage2.UseVisualStyleBackColor = true;
+            btnLoadImage2.Click += btnLoadImage2_Click;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(nudOffY1);
+            groupBox1.Controls.Add(nudOffX1);
+            groupBox1.Controls.Add(nudPad1);
+            groupBox1.Controls.Add(label5);
+            groupBox1.Controls.Add(label4);
+            groupBox1.Controls.Add(label3);
+            groupBox1.Controls.Add(chkStretch1);
+            groupBox1.Controls.Add(label1);
+            groupBox1.Controls.Add(cbAction1);
+            groupBox1.Controls.Add(lblImg1Status);
+            groupBox1.Controls.Add(btnLoadImage1);
+            groupBox1.Location = new Point(6, 15);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(366, 206);
+            groupBox1.TabIndex = 0;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Image 1 (Front Plane)";
+            // 
+            // nudOffY1
+            // 
+            nudOffY1.Location = new Point(97, 139);
+            nudOffY1.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
+            nudOffY1.Minimum = new decimal(new int[] { 500, 0, 0, int.MinValue });
+            nudOffY1.Name = "nudOffY1";
+            nudOffY1.Size = new Size(120, 23);
+            nudOffY1.TabIndex = 14;
+            // 
+            // nudOffX1
+            // 
+            nudOffX1.Location = new Point(97, 110);
+            nudOffX1.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
+            nudOffX1.Minimum = new decimal(new int[] { 500, 0, 0, int.MinValue });
+            nudOffX1.Name = "nudOffX1";
+            nudOffX1.Size = new Size(120, 23);
+            nudOffX1.TabIndex = 13;
+            // 
+            // nudPad1
+            // 
+            nudPad1.Location = new Point(97, 81);
+            nudPad1.Maximum = new decimal(new int[] { 90, 0, 0, 0 });
+            nudPad1.Name = "nudPad1";
+            nudPad1.Size = new Size(120, 23);
+            nudPad1.TabIndex = 12;
+            nudPad1.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(12, 142);
+            label5.Name = "label5";
+            label5.Size = new Size(49, 15);
+            label5.TabIndex = 11;
+            label5.Text = "Offset Y";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(12, 114);
+            label4.Name = "label4";
+            label4.Size = new Size(49, 15);
+            label4.TabIndex = 10;
+            label4.Text = "Offset X";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(12, 83);
+            label3.Name = "label3";
+            label3.Size = new Size(64, 15);
+            label3.TabIndex = 9;
+            label3.Text = "Padding %";
+            // 
+            // chkStretch1
+            // 
+            chkStretch1.AutoSize = true;
+            chkStretch1.Location = new Point(12, 52);
+            chkStretch1.Name = "chkStretch1";
+            chkStretch1.Size = new Size(205, 19);
+            chkStretch1.TabIndex = 8;
+            chkStretch1.Text = "Stretch to fit (Ignore Aspect Ratio)";
+            chkStretch1.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(6, 25);
+            label1.Name = "label1";
+            label1.Size = new Size(88, 15);
+            label1.TabIndex = 7;
+            label1.Text = "Operation Type";
+            // 
+            // cbAction1
+            // 
+            cbAction1.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbAction1.FormattingEnabled = true;
+            cbAction1.Items.AddRange(new object[] { "Extrude", "Cut" });
+            cbAction1.Location = new Point(100, 22);
+            cbAction1.Name = "cbAction1";
+            cbAction1.Size = new Size(118, 23);
+            cbAction1.TabIndex = 6;
+            cbAction1.SelectedIndexChanged += cbAction1_SelectedIndexChanged;
+            // 
+            // lblImg1Status
+            // 
+            lblImg1Status.AutoSize = true;
+            lblImg1Status.Location = new Point(176, 181);
+            lblImg1Status.Name = "lblImg1Status";
+            lblImg1Status.Size = new Size(60, 15);
+            lblImg1Status.TabIndex = 5;
+            lblImg1Status.Text = "imgStatus";
+            // 
             // btnLoadImage1
             // 
-            btnLoadImage1.Location = new Point(292, 167);
+            btnLoadImage1.Location = new Point(6, 177);
             btnLoadImage1.Name = "btnLoadImage1";
             btnLoadImage1.Size = new Size(134, 23);
-            btnLoadImage1.TabIndex = 3;
+            btnLoadImage1.TabIndex = 4;
             btnLoadImage1.Text = "Load Image 1";
             btnLoadImage1.UseVisualStyleBackColor = true;
             btnLoadImage1.Click += btnLoadImage1_Click;
@@ -232,8 +619,8 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(884, 557);
-            Controls.Add(btnLoadImage1);
+            ClientSize = new Size(860, 561);
+            Controls.Add(tabModeSelector);
             Controls.Add(CubeDimensionsGroupBox);
             Controls.Add(VoxelDensityGroupBox);
             Controls.Add(btnExport);
@@ -246,6 +633,20 @@
             ((System.ComponentModel.ISupportInitialize)nudSizeZ).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudSizeY).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudSizeX).EndInit();
+            tabModeSelector.ResumeLayout(false);
+            tabDualText.ResumeLayout(false);
+            tabDualText.PerformLayout();
+            tabDualImage.ResumeLayout(false);
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)nudOffY2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudOffX2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudPad2).EndInit();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)nudOffY1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudOffX1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudPad1).EndInit();
             ResumeLayout(false);
         }
 
@@ -266,6 +667,40 @@
         private NumericUpDown nudSizeZ;
         private NumericUpDown nudSizeY;
         private NumericUpDown nudSizeX;
+        private TabControl tabModeSelector;
+        private TabPage tabDualText;
+        private TabPage tabDualImage;
+        private TextBox txtText2;
+        private TextBox txtText1;
+        private Label labelText2;
+        private Label labelText1;
+        private GroupBox groupBox1;
+        private Label lblImg1Status;
         private Button btnLoadImage1;
+        private ComboBox cbAction1;
+        private Label label1;
+        private GroupBox groupBox2;
+        private Label label2;
+        private ComboBox cbAction2;
+        private Label lblImg2Status;
+        private Button btnLoadImage2;
+        private CheckBox chkStretch1;
+        private CheckBox chkStretch2;
+        private Label label5;
+        private Label label4;
+        private Label label3;
+        private NumericUpDown nudOffY2;
+        private NumericUpDown nudOffX2;
+        private NumericUpDown nudPad2;
+        private Label label6;
+        private Label label7;
+        private Label label8;
+        private NumericUpDown nudOffY1;
+        private NumericUpDown nudOffX1;
+        private NumericUpDown nudPad1;
+        private Button btnFont2;
+        private Button btnFont1;
+        private Label lblFont2;
+        private Label lblFont1;
     }
 }

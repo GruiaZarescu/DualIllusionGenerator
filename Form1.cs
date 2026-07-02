@@ -4,7 +4,10 @@ namespace DualIllusionGenerator
 {
     public partial class Form1 : Form
     {
-        private Stencil _loadedStencil;
+        private Stencil _stencil1;
+        private Stencil _stencil2;
+        private Font _font1 = new Font("Arial", 12, FontStyle.Regular);
+        private Font _font2 = new Font("Arial", 12, FontStyle.Regular);
 
         public Form1()
         {
@@ -50,7 +53,7 @@ namespace DualIllusionGenerator
 
             if (totalVoxels > maxVoxels)
             {
-                long ramMB = totalVoxels / 8 / 1024 / 1024; // Estimate RAM in MB
+                long ramMB = totalVoxels / 8 / 1024 / 1024;
                 string warningMsg = $"The requested model requires {totalVoxels.ToString("N0")} voxels (~{ramMB} MB RAM for the voxels alone, and some more for writing the file to disk.).\n" +
                                     $"This will create an STL file large in size, which may crash 3D printer slicers.\n\n" +
                                     $"Consider dropping the quality by just one level, it would use 8x less memory!" +
@@ -60,8 +63,62 @@ namespace DualIllusionGenerator
 
                 if (result == DialogResult.No)
                 {
-                    return; // User heeded the warning
+                    return;
                 }
+            }
+
+            // VALIDATION AND UI READING
+            bool isDualImageMode = (tabModeSelector.SelectedTab == tabDualImage);
+
+            // Variables for Dual Image Mode
+            CarveOperation op1 = CarveOperation.Extrude;
+            CarveOperation op2 = CarveOperation.Cut;
+            bool stretch1 = false, stretch2 = false;
+            float pad1 = 0, pad2 = 0, offX1 = 0, offY1 = 0, offX2 = 0, offY2 = 0;
+            Stencil localStencil1 = null;
+            Stencil localStencil2 = null;
+
+            // Variables for Dual Text Mode
+            string text1 = "";
+            string text2 = "";
+            Font localFont1 = null;
+            Font localFont2 = null;
+
+            if (isDualImageMode)
+            {
+                if (cbAction1.SelectedItem?.ToString() == cbAction2.SelectedItem?.ToString())
+                {
+                    MessageBox.Show("Actions for Image 1 and Image 2 cannot be the same. One must Extrude and one must Cut.", "Action Conflict", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (_stencil1 == null || _stencil2 == null)
+                {
+                    MessageBox.Show("Please load both Image 1 and Image 2.", "Missing Images", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                op1 = cbAction1.SelectedItem?.ToString() == "Extrude" ? CarveOperation.Extrude : CarveOperation.Cut;
+                op2 = cbAction2.SelectedItem?.ToString() == "Extrude" ? CarveOperation.Extrude : CarveOperation.Cut;
+
+                stretch1 = chkStretch1.Checked;
+                stretch2 = chkStretch2.Checked;
+                pad1 = (float)nudPad1.Value;
+                pad2 = (float)nudPad2.Value;
+                offX1 = (float)nudOffX1.Value;
+                offY1 = (float)nudOffY1.Value;
+                offX2 = (float)nudOffX2.Value;
+                offY2 = (float)nudOffY2.Value;
+
+                localStencil1 = _stencil1;
+                localStencil2 = _stencil2;
+            }
+            else
+            {
+                text1 = txtText1.Text.ToUpper();
+                text2 = txtText2.Text.ToUpper();
+                localFont1 = _font1;
+                localFont2 = _font2;
             }
 
             // Ask user where to save the file
@@ -76,25 +133,55 @@ namespace DualIllusionGenerator
                     btnExport.Text = "Generating...";
                     btnExport.Enabled = false;
 
+                    string filePath = sfd.FileName;
+
                     try
                     {
-                        // Move heavy CPU and Disk IO to a background thread so UI doesn't freeze!
                         await Task.Run(() =>
                         {
-                            // 1. Initialize EMPTY grid (all 0s)
                             VoxelGrid grid = new VoxelGrid(voxelCountX, voxelCountY, voxelCountZ, voxelSizeMm);
 
-                            // 2. If a stencil is loaded, extrude it straight down from the top
-                            if (_loadedStencil != null)
+                            if (isDualImageMode)
                             {
-                                grid.ApplyStencil(_loadedStencil, CarvePlane.Top, CarveOperation.Extrude);
+                                // BOOLEAN LOGIC: Extrudes MUST happen before Cuts!
+                                if (op1 == CarveOperation.Extrude)
+                                    grid.ApplyStencil(localStencil1, CarvePlane.Front, CarveOperation.Extrude, stretch1, pad1, offX1, offY1);
+                                if (op2 == CarveOperation.Extrude)
+                                    grid.ApplyStencil(localStencil2, CarvePlane.Top, CarveOperation.Extrude, stretch2, pad2, offX2, offY2);
+
+                                if (op1 == CarveOperation.Cut)
+                                    grid.ApplyStencil(localStencil1, CarvePlane.Front, CarveOperation.Cut, stretch1, pad1, offX1, offY1);
+                                if (op2 == CarveOperation.Cut)
+                                    grid.ApplyStencil(localStencil2, CarvePlane.Top, CarveOperation.Cut, stretch2, pad2, offX2, offY2);
+                            }
+                            else
+                            {
+                                // Dual Text Mode
+                                List<Stencil> stencils1 = TextManager.CreateStencilsFromText(text1, localFont1);
+                                List<Stencil> stencils2 = TextManager.CreateStencilsFromText(text2, localFont2);
+
+                                List<Stencil> extrudeStencils = stencils1.Count >= stencils2.Count ? stencils1 : stencils2;
+                                List<Stencil> cutStencils = stencils1.Count >= stencils2.Count ? stencils2 : stencils1;
+
+                                int totalSlots = extrudeStencils.Count;
+                                int cutOffset = (totalSlots - cutStencils.Count) / 2;
+
+                                for (int i = 0; i < extrudeStencils.Count; i++)
+                                {
+                                    grid.ApplyTextStencil(extrudeStencils[i], -45.0f, CarveOperation.Extrude, i, totalSlots);
+                                }
+
+                                for (int i = 0; i < cutStencils.Count; i++)
+                                {
+                                    int targetSlot = i + cutOffset;
+                                    grid.ApplyTextStencil(cutStencils[i], 45.0f, CarveOperation.Cut, targetSlot, totalSlots);
+                                }
                             }
 
-                            // 3. Export to STL
-                            VoxelToStlExporter.Export(grid, sfd.FileName);
+                            VoxelToStlExporter.Export(grid, filePath);
                         });
 
-                        MessageBox.Show($"Successfully exported {voxelCountX}x{voxelCountY}x{voxelCountZ} block to STL!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Successfully exported to STL!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
@@ -134,50 +221,127 @@ namespace DualIllusionGenerator
 
         }
 
-        private void btnLoadImage1_Click(object sender, EventArgs e)
+
+        private void cbAction1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLoadImage2_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
-                ofd.Title = "Select Stencil Image";
+                ofd.Title = "Select Stencil Image 2";
                 ofd.Filter = "Image Files|*.png;*.bmp;*.jpg";
-
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        // Try to load normally (autoFix = false by default)
-                        _loadedStencil = StencilManager.CreateFromImage(ofd.FileName);
-
-                        MessageBox.Show($"Success! Stencil loaded and trimmed.\nDimensions: {_loadedStencil.Width} x {_loadedStencil.Height} pixels.",
-                                        "Stencil Validated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        _stencil2 = StencilManager.CreateFromImage(ofd.FileName);
+                        lblImg2Status.Text = $"Loaded: {_stencil2.Width}x{_stencil2.Height}";
                     }
                     catch (AntiAliasingException ex)
                     {
-                        // Specifically catch the anti-aliasing error
-                        DialogResult result = MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                        if (result == DialogResult.Yes)
+                        if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                         {
-                            try
-                            {
-                                // Turn on debug mode for now to see what it generates
-                                _loadedStencil = StencilManager.CreateFromImage(ofd.FileName, autoFix: true, debugMode: true);
-
-                                MessageBox.Show($"Success! Image auto-fixed and trimmed.\nDimensions: {_loadedStencil.Width} x {_loadedStencil.Height} pixels.",
-                                                "Stencil Validated", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
-                            catch (Exception ex2)
-                            {
-                                // If it fails *after* fixing (e.g. multiple contours), show error
-                                MessageBox.Show(ex2.Message, "Image Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
+                            _stencil2 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
+                            lblImg2Status.Text = $"Loaded (Auto-Fixed): {_stencil2.Width}x{_stencil2.Height}";
                         }
                     }
                     catch (Exception ex)
                     {
-                        // Catch all other errors (no transparency, multiple contours, etc.)
-                        MessageBox.Show(ex.Message, "Image Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                }
+            }
+        }
+
+        private void btnLoadImage1_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Title = "Select Stencil Image 1";
+                ofd.Filter = "Image Files|*.png;*.bmp;*.jpg";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        _stencil1 = StencilManager.CreateFromImage(ofd.FileName);
+                        lblImg1Status.Text = $"Loaded: {_stencil1.Width}x{_stencil1.Height}";
+                    }
+                    catch (AntiAliasingException ex)
+                    {
+                        if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        {
+                            _stencil1 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
+                            lblImg1Status.Text = $"Loaded (Auto-Fixed): {_stencil1.Width}x{_stencil1.Height}";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void txtText1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtText2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelText1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabDualText_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnFont1_Click(object sender, EventArgs e)
+        {
+            using (FontDialog fd = new FontDialog())
+            {
+                fd.Font = _font1;
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    _font1 = fd.Font;
+                    lblFont1.Text = $"{_font1.Name} ({_font1.Size})";
+                }
+            }
+        }
+
+        private void btnFont2_Click(object sender, EventArgs e)
+        {
+            using (FontDialog fd = new FontDialog())
+            {
+                fd.Font = _font2;
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    _font2 = fd.Font;
+                    lblFont2.Text = $"{_font2.Name} ({_font2.Size})";
                 }
             }
         }

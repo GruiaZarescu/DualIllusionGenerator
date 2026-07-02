@@ -91,46 +91,175 @@ public class VoxelGrid
     /// <summary>
     /// Applies a 2D stencil to the voxel grid.
     /// </summary>
-    public void ApplyStencil(Stencil stencil, CarvePlane plane, CarveOperation operation)
+    /// <summary>
+    /// Applies a 2D stencil to the voxel grid.
+    /// </summary>
+    public void ApplyStencil(Stencil stencil, CarvePlane plane, CarveOperation operation, bool stretchToFill, float paddingPercent, float offsetX, float offsetY)
     {
-        if (plane != CarvePlane.Top)
-            throw new NotImplementedException("Only Top plane is supported in this initial version.");
+        float scaleX, scaleY, uniformScale, scaledWidth, scaledHeight, offsetXFinal, offsetYFinal;
 
-        // 1. Calculate Uniform Scale
-        float scaleX = (float)Width / stencil.Width;
-        float scaleY = (float)Height / stencil.Height;
-        float uniformScale = Math.Min(scaleX, scaleY);
+        // Calculate padding multiplier (e.g., 10% padding means we use 90% of the space)
+        float effectivePadding = (operation == CarveOperation.Cut) ? paddingPercent : 0f;
+        float padMultiplier = 1.0f - (effectivePadding / 100.0f);
 
-        float scaledWidth = stencil.Width * uniformScale;
-        float scaledHeight = stencil.Height * uniformScale;
+        // 1. Calculate Scaling and Offsets based on the Plane
+        if (plane == CarvePlane.Top)
+        {
+            // Top plane maps to X and Y. Extrudes down Z.
+            // Apply padding to the target area
+            float targetWidth = Width * padMultiplier;
+            float targetHeight = Height * padMultiplier;
 
-        // 2. Calculate Centering Offset
-        float offsetX = (Width - scaledWidth) / 2.0f;
-        float offsetY = (Height - scaledHeight) / 2.0f;
+            scaleX = targetWidth / stencil.Width;
+            scaleY = targetHeight / stencil.Height;
+            uniformScale = stretchToFill ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
 
-        // 3. Iterate over the top face (X, Y)
+            scaledWidth = stencil.Width * uniformScale;
+            scaledHeight = stencil.Height * uniformScale;
+
+            // Apply user offsets (in voxels)
+            offsetXFinal = ((Width - scaledWidth) / 2.0f) + offsetX;
+            offsetYFinal = ((Height - scaledHeight) / 2.0f) + offsetY;
+        }
+        else // Front plane
+        {
+            // Front plane maps to X and Z. Extrudes back Y.
+            // Apply padding to the target area
+            float targetWidth = Width * padMultiplier;
+            float targetHeight = Depth * padMultiplier;
+
+            scaleX = targetWidth / stencil.Width;
+            scaleY = targetHeight / stencil.Height;
+            uniformScale = stretchToFill ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
+
+            scaledWidth = stencil.Width * uniformScale;
+            scaledHeight = stencil.Height * uniformScale;
+
+            offsetXFinal = ((Width - scaledWidth) / 2.0f) + offsetX;
+            offsetYFinal = ((Depth - scaledHeight) / 2.0f) + offsetY; // Centering on Z axis
+        }
+
+        // 2. Iterate over the grid
         Parallel.For(0, Width, x =>
         {
             for (int y = 0; y < Height; y++)
             {
-                // FIX: Map the CENTER of the voxel (x + 0.5f) to the stencil
-                float gridCenterX = x + 0.5f;
-                float gridCenterY = y + 0.5f;
-
-                int stencilX = (int)((gridCenterX - offsetX) / uniformScale);
-                int stencilY = (int)((gridCenterY - offsetY) / uniformScale);
-
-                if (stencil.IsInBounds(stencilX, stencilY))
+                for (int z = 0; z < Depth; z++)
                 {
-                    if (stencil.Mask[stencilX, stencilY])
+                    int stencilX, stencilY;
+
+                    if (plane == CarvePlane.Top)
                     {
-                        for (int z = 0; z < Depth; z++)
+                        float gridCenterX = x + 0.5f;
+                        float gridCenterY = y + 0.5f;
+                        stencilX = (int)((gridCenterX - offsetXFinal) / uniformScale);
+                        stencilY = (int)((gridCenterY - offsetYFinal) / uniformScale);
+                    }
+                    else // Front plane
+                    {
+                        float gridCenterX = x + 0.5f;
+                        float gridCenterZ = z + 0.5f;
+                        stencilX = (int)((gridCenterX - offsetXFinal) / uniformScale);
+                        stencilY = (int)((gridCenterZ - offsetYFinal) / uniformScale);
+                    }
+
+                    if (stencil.IsInBounds(stencilX, stencilY))
+                    {
+                        if (stencil.Mask[stencilX, stencilY])
                         {
                             if (operation == CarveOperation.Extrude)
                                 SetVoxel(x, y, z, true);
                             else if (operation == CarveOperation.Cut)
                                 SetVoxel(x, y, z, false);
                         }
+                    }
+                }
+            }
+        });
+    }
+
+    /// <summary>
+    /// Applies a text stencil at a specific angle within a designated slot.
+    /// </summary>
+    /// <summary>
+    /// Applies a text stencil at a specific angle within a designated slot.
+    /// </summary>
+    /// <summary>
+    /// Applies a text stencil at a specific angle within a designated slot.
+    /// </summary>
+    /// <summary>
+    /// Applies a text stencil at a specific angle within a designated slot.
+    /// </summary>
+    public void ApplyTextStencil(Stencil stencil, float angleDeg, CarveOperation operation, int slotIndex, int totalSlots)
+    {
+        float rad = angleDeg * (float)Math.PI / 180.0f;
+        float cosA = (float)Math.Cos(rad);
+        float sinA = (float)Math.Sin(rad);
+
+        float slotWidth = (float)Width / totalSlots;
+        float slotCenterX = (slotIndex * slotWidth) + (slotWidth / 2.0f);
+        float slotCenterY = Depth / 2.0f;
+        float slotCenterZ = Height / 2.0f;
+
+        float scaleX = slotWidth / stencil.Width;
+        float scaleY = (float)Height / stencil.Height;
+        float scale = Math.Min(scaleX, scaleY) * 0.9f;
+
+        // Calculate exact max depth based on the actual physical bounds of the text
+        float u_half = (stencil.Width / 2.0f) * scale;
+        float maxDepth = float.MaxValue;
+
+        if (sinA > 0.0001f)
+        {
+            float minX_start = slotCenterX - u_half * Math.Abs(cosA);
+            maxDepth = Math.Min(maxDepth, minX_start / sinA);
+        }
+        else if (sinA < -0.0001f)
+        {
+            float maxX_start = slotCenterX + u_half * Math.Abs(cosA);
+            maxDepth = Math.Min(maxDepth, (Width - maxX_start) / -sinA);
+        }
+
+        if (cosA > 0.0001f)
+        {
+            float maxY_start = slotCenterY + u_half * Math.Abs(sinA);
+            maxDepth = Math.Min(maxDepth, (Depth - maxY_start) / cosA);
+        }
+        else if (cosA < -0.0001f)
+        {
+            float minY_start = slotCenterY - u_half * Math.Abs(sinA);
+            maxDepth = Math.Min(maxDepth, -minY_start / cosA);
+        }
+
+        maxDepth -= 1.0f; // Keep 1 voxel away from walls to be safe
+        if (maxDepth < 0) maxDepth = 0;
+
+        Parallel.For(0, Width, x =>
+        {
+            for (int y = 0; y < Depth; y++)
+            {
+                for (int z = 0; z < Height; z++)
+                {
+                    float localX = x - slotCenterX;
+                    float localY = y - slotCenterY;
+                    float localZ = z - slotCenterZ;
+
+                    float d = -localX * sinA + localY * cosA;
+
+                    if (d < 0 || d > maxDepth) continue;
+
+                    float u = localX * cosA + localY * sinA;
+                    float v = localZ;
+
+                    int stencilX = (int)((u / scale) + (stencil.Width / 2.0f));
+                    int stencilY = (int)((-v / scale) + (stencil.Height / 2.0f));
+
+                    if (stencil.IsInBounds(stencilX, stencilY) && stencil.Mask[stencilX, stencilY])
+                    {
+                        if (operation == CarveOperation.Extrude)
+                            SetVoxel(x, y, z, true);
+                        else if (operation == CarveOperation.Cut)
+                            SetVoxel(x, y, z, false);
                     }
                 }
             }
