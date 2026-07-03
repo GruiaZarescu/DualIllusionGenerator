@@ -427,6 +427,7 @@
             btnImg2Font.TabIndex = 20;
             btnImg2Font.Text = "Font";
             btnImg2Font.UseVisualStyleBackColor = true;
+            btnImg2Font.Visible = false;
             btnImg2Font.Click += btnImg2Font_Click;
             // 
             // txtImg2Text
@@ -444,13 +445,13 @@
             rbImg2Text.Name = "rbImg2Text";
             rbImg2Text.Size = new Size(68, 19);
             rbImg2Text.TabIndex = 21;
-            rbImg2Text.TabStop = true;
             rbImg2Text.Text = "Use Text";
             rbImg2Text.UseVisualStyleBackColor = true;
             // 
             // rbImg2Image
             // 
             rbImg2Image.AutoSize = true;
+            rbImg2Image.Checked = true;
             rbImg2Image.Location = new Point(268, 18);
             rbImg2Image.Name = "rbImg2Image";
             rbImg2Image.Size = new Size(80, 19);
@@ -538,6 +539,7 @@
             lblImg2Status.Size = new Size(60, 15);
             lblImg2Status.TabIndex = 5;
             lblImg2Status.Text = "imgStatus";
+            lblImg2Status.Visible = false;
             // 
             // label8
             // 
