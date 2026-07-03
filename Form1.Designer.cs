@@ -91,12 +91,16 @@
             panelPreview = new Panel();
             label9 = new Label();
             TextResolutionGroupBox = new GroupBox();
+            checkBox1 = new CheckBox();
             rbTextResUltra = new RadioButton();
             rbTextResVeryHigh = new RadioButton();
             rbTextResHigh = new RadioButton();
             rbTextResMedium = new RadioButton();
             rbTextResLow = new RadioButton();
             rbTextResVeryLow = new RadioButton();
+            checkBoxEnableSmoothing = new CheckBox();
+            smoothTrackBar = new TrackBar();
+            lblSmoothAmount = new Label();
             VoxelDensityGroupBox.SuspendLayout();
             CubeDimensionsGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudSizeZ).BeginInit();
@@ -114,11 +118,12 @@
             ((System.ComponentModel.ISupportInitialize)nudOffX1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudPad1).BeginInit();
             TextResolutionGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)smoothTrackBar).BeginInit();
             SuspendLayout();
             // 
             // btnExport
             // 
-            btnExport.Location = new Point(374, 483);
+            btnExport.Location = new Point(708, 473);
             btnExport.Name = "btnExport";
             btnExport.Size = new Size(115, 62);
             btnExport.TabIndex = 0;
@@ -134,7 +139,7 @@
             VoxelDensityGroupBox.Controls.Add(rbDensityMedium);
             VoxelDensityGroupBox.Controls.Add(rbDensityLow);
             VoxelDensityGroupBox.Controls.Add(rbDensityVeryLow);
-            VoxelDensityGroupBox.Location = new Point(526, 12);
+            VoxelDensityGroupBox.Location = new Point(639, 12);
             VoxelDensityGroupBox.Name = "VoxelDensityGroupBox";
             VoxelDensityGroupBox.Size = new Size(91, 184);
             VoxelDensityGroupBox.TabIndex = 1;
@@ -149,7 +154,6 @@
             rbDensityUltra.Name = "rbDensityUltra";
             rbDensityUltra.Size = new Size(50, 19);
             rbDensityUltra.TabIndex = 5;
-            rbDensityUltra.TabStop = true;
             rbDensityUltra.Text = "Ultra";
             rbDensityUltra.UseVisualStyleBackColor = true;
             rbDensityUltra.CheckedChanged += rbDensityUltra_CheckedChanged;
@@ -161,7 +165,6 @@
             rbDensityVeryHigh.Name = "rbDensityVeryHigh";
             rbDensityVeryHigh.Size = new Size(76, 19);
             rbDensityVeryHigh.TabIndex = 4;
-            rbDensityVeryHigh.TabStop = true;
             rbDensityVeryHigh.Text = "Very High";
             rbDensityVeryHigh.UseVisualStyleBackColor = true;
             rbDensityVeryHigh.CheckedChanged += rbDensityVeryHigh_CheckedChanged;
@@ -169,6 +172,7 @@
             // rbDensityHigh
             // 
             rbDensityHigh.AutoSize = true;
+            rbDensityHigh.Checked = true;
             rbDensityHigh.Location = new Point(6, 109);
             rbDensityHigh.Name = "rbDensityHigh";
             rbDensityHigh.Size = new Size(51, 19);
@@ -185,7 +189,6 @@
             rbDensityMedium.Name = "rbDensityMedium";
             rbDensityMedium.Size = new Size(70, 19);
             rbDensityMedium.TabIndex = 2;
-            rbDensityMedium.TabStop = true;
             rbDensityMedium.Text = "Medium";
             rbDensityMedium.UseVisualStyleBackColor = true;
             rbDensityMedium.CheckedChanged += rbDensityMedium_CheckedChanged;
@@ -197,7 +200,6 @@
             rbDensityLow.Name = "rbDensityLow";
             rbDensityLow.Size = new Size(47, 19);
             rbDensityLow.TabIndex = 1;
-            rbDensityLow.TabStop = true;
             rbDensityLow.Text = "Low";
             rbDensityLow.UseVisualStyleBackColor = true;
             rbDensityLow.CheckedChanged += rbDensityLow_CheckedChanged;
@@ -209,7 +211,6 @@
             rbDensityVeryLow.Name = "rbDensityVeryLow";
             rbDensityVeryLow.Size = new Size(72, 19);
             rbDensityVeryLow.TabIndex = 0;
-            rbDensityVeryLow.TabStop = true;
             rbDensityVeryLow.Text = "Very Low";
             rbDensityVeryLow.UseVisualStyleBackColor = true;
             rbDensityVeryLow.CheckedChanged += radioButton1_CheckedChanged;
@@ -222,7 +223,7 @@
             CubeDimensionsGroupBox.Controls.Add(labelHeight);
             CubeDimensionsGroupBox.Controls.Add(labelDepth);
             CubeDimensionsGroupBox.Controls.Add(labelWidth);
-            CubeDimensionsGroupBox.Location = new Point(320, 12);
+            CubeDimensionsGroupBox.Location = new Point(433, 12);
             CubeDimensionsGroupBox.Name = "CubeDimensionsGroupBox";
             CubeDimensionsGroupBox.Size = new Size(200, 184);
             CubeDimensionsGroupBox.TabIndex = 2;
@@ -774,35 +775,47 @@
             // 
             // panelPreview
             // 
-            panelPreview.Location = new Point(21, 29);
+            panelPreview.Location = new Point(35, 29);
             panelPreview.Name = "panelPreview";
-            panelPreview.Size = new Size(281, 161);
+            panelPreview.Size = new Size(392, 161);
             panelPreview.TabIndex = 3;
             panelPreview.Paint += panelPreview_Paint;
             // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(30, 7);
+            label9.Location = new Point(35, 9);
             label9.Name = "label9";
             label9.Size = new Size(85, 15);
             label9.TabIndex = 4;
             label9.Text = "Model Preview";
+            label9.Click += label9_Click;
             // 
             // TextResolutionGroupBox
             // 
+            TextResolutionGroupBox.Controls.Add(checkBox1);
             TextResolutionGroupBox.Controls.Add(rbTextResUltra);
             TextResolutionGroupBox.Controls.Add(rbTextResVeryHigh);
             TextResolutionGroupBox.Controls.Add(rbTextResHigh);
             TextResolutionGroupBox.Controls.Add(rbTextResMedium);
             TextResolutionGroupBox.Controls.Add(rbTextResLow);
             TextResolutionGroupBox.Controls.Add(rbTextResVeryLow);
-            TextResolutionGroupBox.Location = new Point(623, 12);
+            TextResolutionGroupBox.Location = new Point(736, 12);
             TextResolutionGroupBox.Name = "TextResolutionGroupBox";
             TextResolutionGroupBox.Size = new Size(98, 184);
             TextResolutionGroupBox.TabIndex = 6;
             TextResolutionGroupBox.TabStop = false;
             TextResolutionGroupBox.Text = "Text resolution";
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(3, 19);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(82, 19);
+            checkBox1.TabIndex = 6;
+            checkBox1.Text = "checkBox1";
+            checkBox1.UseVisualStyleBackColor = true;
             // 
             // rbTextResUltra
             // 
@@ -811,7 +824,6 @@
             rbTextResUltra.Name = "rbTextResUltra";
             rbTextResUltra.Size = new Size(50, 19);
             rbTextResUltra.TabIndex = 5;
-            rbTextResUltra.TabStop = true;
             rbTextResUltra.Text = "Ultra";
             rbTextResUltra.UseVisualStyleBackColor = true;
             // 
@@ -822,13 +834,13 @@
             rbTextResVeryHigh.Name = "rbTextResVeryHigh";
             rbTextResVeryHigh.Size = new Size(76, 19);
             rbTextResVeryHigh.TabIndex = 4;
-            rbTextResVeryHigh.TabStop = true;
             rbTextResVeryHigh.Text = "Very High";
             rbTextResVeryHigh.UseVisualStyleBackColor = true;
             // 
             // rbTextResHigh
             // 
             rbTextResHigh.AutoSize = true;
+            rbTextResHigh.Checked = true;
             rbTextResHigh.Location = new Point(6, 109);
             rbTextResHigh.Name = "rbTextResHigh";
             rbTextResHigh.Size = new Size(51, 19);
@@ -844,7 +856,6 @@
             rbTextResMedium.Name = "rbTextResMedium";
             rbTextResMedium.Size = new Size(70, 19);
             rbTextResMedium.TabIndex = 2;
-            rbTextResMedium.TabStop = true;
             rbTextResMedium.Text = "Medium";
             rbTextResMedium.UseVisualStyleBackColor = true;
             // 
@@ -855,7 +866,6 @@
             rbTextResLow.Name = "rbTextResLow";
             rbTextResLow.Size = new Size(47, 19);
             rbTextResLow.TabIndex = 1;
-            rbTextResLow.TabStop = true;
             rbTextResLow.Text = "Low";
             rbTextResLow.UseVisualStyleBackColor = true;
             // 
@@ -866,15 +876,50 @@
             rbTextResVeryLow.Name = "rbTextResVeryLow";
             rbTextResVeryLow.Size = new Size(72, 19);
             rbTextResVeryLow.TabIndex = 0;
-            rbTextResVeryLow.TabStop = true;
             rbTextResVeryLow.Text = "Very Low";
             rbTextResVeryLow.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxEnableSmoothing
+            // 
+            checkBoxEnableSmoothing.AutoSize = true;
+            checkBoxEnableSmoothing.Checked = true;
+            checkBoxEnableSmoothing.CheckState = CheckState.Checked;
+            checkBoxEnableSmoothing.Location = new Point(537, 463);
+            checkBoxEnableSmoothing.Name = "checkBoxEnableSmoothing";
+            checkBoxEnableSmoothing.Size = new Size(155, 19);
+            checkBoxEnableSmoothing.TabIndex = 7;
+            checkBoxEnableSmoothing.Text = "Enable Mesh Smoothing";
+            checkBoxEnableSmoothing.UseVisualStyleBackColor = true;
+            checkBoxEnableSmoothing.CheckedChanged += checkBoxEnableSmoothing_CheckedChanged;
+            // 
+            // smoothTrackBar
+            // 
+            smoothTrackBar.Location = new Point(537, 504);
+            smoothTrackBar.Minimum = 1;
+            smoothTrackBar.Name = "smoothTrackBar";
+            smoothTrackBar.Size = new Size(155, 45);
+            smoothTrackBar.TabIndex = 8;
+            smoothTrackBar.Value = 3;
+            smoothTrackBar.Scroll += smoothTrackBar_Scroll;
+            // 
+            // lblSmoothAmount
+            // 
+            lblSmoothAmount.AutoSize = true;
+            lblSmoothAmount.Location = new Point(418, 504);
+            lblSmoothAmount.Name = "lblSmoothAmount";
+            lblSmoothAmount.Size = new Size(113, 15);
+            lblSmoothAmount.TabIndex = 9;
+            lblSmoothAmount.Text = "Smoothing Amount";
+            lblSmoothAmount.Click += lblSmoothAmount_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(860, 561);
+            Controls.Add(lblSmoothAmount);
+            Controls.Add(smoothTrackBar);
+            Controls.Add(checkBoxEnableSmoothing);
             Controls.Add(TextResolutionGroupBox);
             Controls.Add(label9);
             Controls.Add(panelPreview);
@@ -884,6 +929,7 @@
             Controls.Add(btnExport);
             Name = "Form1";
             Text = "Form1";
+            Load += Form1_Load;
             VoxelDensityGroupBox.ResumeLayout(false);
             VoxelDensityGroupBox.PerformLayout();
             CubeDimensionsGroupBox.ResumeLayout(false);
@@ -907,6 +953,7 @@
             ((System.ComponentModel.ISupportInitialize)nudPad1).EndInit();
             TextResolutionGroupBox.ResumeLayout(false);
             TextResolutionGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)smoothTrackBar).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -982,5 +1029,9 @@
         private RadioButton rbTextResMedium;
         private RadioButton rbTextResLow;
         private RadioButton rbTextResVeryLow;
+        private CheckBox checkBox1;
+        private CheckBox checkBoxEnableSmoothing;
+        private TrackBar smoothTrackBar;
+        private Label lblSmoothAmount;
     }
 }

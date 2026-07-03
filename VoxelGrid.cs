@@ -235,15 +235,16 @@ public class VoxelGrid
                     {
                         float gridCenterX = x + 0.5f;
                         float gridCenterY = y + 0.5f;
-                        stencilX = (int)((gridCenterX - offsetXFinal) / finalScaleX);
+                        // FIX: Flip X to correct mirroring when viewed from above
+                        stencilX = (int)((scaledWidth - 1 - (gridCenterX - offsetXFinal)) / finalScaleX);
                         stencilY = (int)((gridCenterY - offsetYFinal) / finalScaleY);
                     }
                     else // Front plane
                     {
                         float gridCenterX = x + 0.5f;
                         float gridCenterZ = z + 0.5f;
-                        stencilX = (int)((gridCenterX - offsetXFinal) / finalScaleX);
-                        stencilY = (int)((gridCenterZ - offsetYFinal) / finalScaleY);
+                        stencilX = (int)((scaledWidth - 1 - (gridCenterX - offsetXFinal)) / finalScaleX);
+                        stencilY = (int)((scaledHeight - 1 - (gridCenterZ - offsetYFinal)) / finalScaleY);
                     }
 
                     if (stencil.IsInBounds(stencilX, stencilY) && stencil.Mask[stencilX, stencilY])

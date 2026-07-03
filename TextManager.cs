@@ -10,6 +10,8 @@
 
         public static List<Stencil> CreateStencilsFromText(string text, Font font,float renderPixelHeight =512f)
         {
+            if (renderPixelHeight <= 0f) renderPixelHeight = 64f;
+
             List<Stencil> stencils = new List<Stencil>();
 
             using (Font renderFont = new Font(font.FontFamily, renderPixelHeight , font.Style, GraphicsUnit.Pixel))
@@ -51,6 +53,7 @@
         {
             if (string.IsNullOrWhiteSpace(text))
                 throw new Exception("Text is empty.");
+            if(renderPixelHeight <= 0) renderPixelHeight = 64f;
 
             // Force a consistent render resolution for clean edges
             using (Font renderFont = new Font(font.FontFamily, renderPixelHeight, font.Style, GraphicsUnit.Pixel))

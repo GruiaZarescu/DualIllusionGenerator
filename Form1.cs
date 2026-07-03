@@ -15,6 +15,7 @@ namespace DualIllusionGenerator
         private Font _font2 = new Font("Arial", 12, FontStyle.Regular);
         private Font _imgFont1 = new Font("Arial", 12, FontStyle.Regular);
         private Font _imgFont2 = new Font("Arial", 12, FontStyle.Regular);
+        private int smoothIterations = 3;
 
         private HelixViewport3D _viewport;
         private ModelVisual3D _lettersModel;
@@ -120,8 +121,8 @@ namespace DualIllusionGenerator
                     (font1, font2) = (font2, font1);
                 }
 
-                // Image mode captures
-                CarveOperation op1 = CarveOperation.Extrude, op2 = CarveOperation.Cut;
+                CarveOperation op1 = ParseCarveOperation(cbAction1, CarveOperation.Extrude);
+                CarveOperation op2 = ParseCarveOperation(cbAction2, CarveOperation.Cut);
                 bool stretch1 = false, stretch2 = false;
                 float pad1 = 0, pad2 = 0, offX1 = 0, offY1 = 0, offX2 = 0, offY2 = 0;
                 Stencil stencil1 = null, stencil2 = null;
@@ -140,7 +141,7 @@ namespace DualIllusionGenerator
                     if (rbImg1Text.Checked)
                     {
                         if (!string.IsNullOrWhiteSpace(txtImg1Text.Text))
-                            stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1,GetTextResolution());
+                            stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1, GetTextResolution());
                     }
                     else
                     {
@@ -151,7 +152,7 @@ namespace DualIllusionGenerator
                     if (rbImg2Text.Checked)
                     {
                         if (!string.IsNullOrWhiteSpace(txtImg2Text.Text))
-                            stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2,GetTextResolution());
+                            stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2, GetTextResolution());
                     }
                     else
                     {
@@ -259,16 +260,27 @@ namespace DualIllusionGenerator
         {
             if (isDualImageMode)
             {
-                if (stencil1 != null) grid.ApplyStencil(stencil1, CarvePlane.Front, op1, stretch1, pad1, offX1, offY1);
-                if (stencil2 != null) grid.ApplyStencil(stencil2, CarvePlane.Top, op2, stretch2, pad2, offX2, offY2);
+                // 1. Process all Extrude operations first so there is material to cut from
+                if (stencil1 != null && op1 == CarveOperation.Extrude)
+                    grid.ApplyStencil(stencil1, CarvePlane.Front, op1, stretch1, pad1, offX1, offY1);
+
+                if (stencil2 != null && op2 == CarveOperation.Extrude)
+                    grid.ApplyStencil(stencil2, CarvePlane.Top, op2, stretch2, pad2, offX2, offY2);
+
+                // 2. Process Cut/Intersect operations second
+                if (stencil1 != null && op1 != CarveOperation.Extrude)
+                    grid.ApplyStencil(stencil1, CarvePlane.Front, op1, stretch1, pad1, offX1, offY1);
+
+                if (stencil2 != null && op2 != CarveOperation.Extrude)
+                    grid.ApplyStencil(stencil2, CarvePlane.Top, op2, stretch2, pad2, offX2, offY2);
             }
             else
             {
                 if (baseThicknessVoxels > 0)
                     grid.AddBasePlate(baseThicknessVoxels);
 
-                List<Stencil> stencils1 = TextManager.CreateStencilsFromText(text1, font1,GetTextResolution());
-                List<Stencil> stencils2 = TextManager.CreateStencilsFromText(text2, font2,GetTextResolution());
+                List<Stencil> stencils1 = TextManager.CreateStencilsFromText(text1, font1, GetTextResolution());
+                List<Stencil> stencils2 = TextManager.CreateStencilsFromText(text2, font2, GetTextResolution());
 
                 if (stencils1.Count == 0 && stencils2.Count == 0) return;
 
@@ -394,8 +406,8 @@ namespace DualIllusionGenerator
                     return;
             }
 
-            // Capture image mode UI state
-            CarveOperation op1 = CarveOperation.Extrude, op2 = CarveOperation.Cut;
+            CarveOperation op1 = ParseCarveOperation(cbAction1, CarveOperation.Extrude);
+            CarveOperation op2 = ParseCarveOperation(cbAction2, CarveOperation.Cut);
             bool stretch1 = false, stretch2 = false;
             float pad1 = 0, pad2 = 0, offX1 = 0, offY1 = 0, offX2 = 0, offY2 = 0;
             Stencil localStencil1 = null, localStencil2 = null;
@@ -488,8 +500,17 @@ namespace DualIllusionGenerator
                                     letterVoxelCountZ, baseThicknessVoxels);
                             }
 
-                            MeshData mesh = VoxelMesher.Generate(grid, isoLevel: 0.5f);
-                            VoxelToStlExporter.ExportMeshToStl(mesh, filePath);
+                            if (checkBoxEnableSmoothing.Checked) 
+                            {
+                                MeshData mesh = VoxelMesher.Generate(grid, isoLevel: 0.5f);
+                                MeshSmoother.Smooth(mesh, smoothIterations);
+                                VoxelToStlExporter.ExportMeshToStl(mesh, filePath);
+                            }
+                            else 
+                            {
+                                VoxelToStlExporter.Export(grid, filePath);
+                            }
+                            
                         });
 
                         MessageBox.Show("Successfully exported to STL!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -720,6 +741,18 @@ namespace DualIllusionGenerator
             }
         }
 
+        private CarveOperation ParseCarveOperation(ComboBox cb, CarveOperation defaultOp)
+        {
+            if (cb == null || cb.SelectedItem == null) return defaultOp;
+            return cb.SelectedItem.ToString() switch
+            {
+                "Extrude" => CarveOperation.Extrude,
+                "Cut" => CarveOperation.Cut,
+                "Intersect" => CarveOperation.Intersect,
+                _ => defaultOp
+            };
+        }
+
         // ─── DEAD DESIGNER EVENT STUBS ────────────────────────────────────────────
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e) { }
@@ -852,6 +885,40 @@ namespace DualIllusionGenerator
         }
 
         private void txtImg2Text_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void smoothTrackBar_Scroll(object sender, EventArgs e)
+        {
+            smoothIterations = smoothTrackBar.Value;
+        }
+
+        private void checkBoxEnableSmoothing_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxEnableSmoothing.Checked)
+            {
+                smoothTrackBar.Visible = true;
+                lblSmoothAmount.Visible = true;
+            }
+            else 
+            {  
+                smoothTrackBar.Visible = false; 
+                lblSmoothAmount.Visible = false;
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblSmoothAmount_Click(object sender, EventArgs e)
         {
 
         }
