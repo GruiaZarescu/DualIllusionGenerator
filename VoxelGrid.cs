@@ -133,39 +133,15 @@ public class VoxelGrid
     /// <summary>
     /// Applies a 2D stencil to the voxel grid.
     /// </summary>
-    public void ApplyStencil(Stencil stencil, CarvePlane plane, CarveOperation operation, bool stretchToFill, float paddingPercent, float offsetX, float offsetY)
+    public void ApplyStencil(Stencil stencil, CarvePlane plane, CarveOperation operation,
+    bool stretchToFill, float paddingPercent, float offsetX, float offsetY)
     {
-        float scaleX, scaleY, uniformScale, scaledWidth, scaledHeight, offsetXFinal, offsetYFinal;
+        float scaleX, scaleY, finalScaleX, finalScaleY, scaledWidth, scaledHeight, offsetXFinal, offsetYFinal;
 
-        // Calculate padding multiplier
+        // Calculate padding multiplier (only meaningful for Cut in many cases)
         float effectivePadding = (operation == CarveOperation.Cut) ? paddingPercent : 0f;
         float padMultiplier = 1.0f - (effectivePadding / 100.0f);
 
-        // Default to full grid
-        int boundWidth = Width;
-        int boundHeight = Height;
-        int boundDepth = Depth;
-        float centerOffsetX = 0;
-        float centerOffsetY = 0;
-        float centerOffsetZ = 0;
-
-        // If we are cutting, find the actual extruded geometry and fit to THAT
-        if (operation == CarveOperation.Cut)
-        {
-            var bounds = GetSolidBounds();
-            if (bounds.maxX != -1) // Check if there is any solid geometry
-            {
-                boundWidth = bounds.maxX - bounds.minX + 1;
-                boundHeight = bounds.maxY - bounds.minY + 1;
-                boundDepth = bounds.maxZ - bounds.minZ + 1;
-
-                centerOffsetX = bounds.minX;
-                centerOffsetY = bounds.minY;
-                centerOffsetZ = bounds.minZ;
-            }
-        }
-
-        // 1. Calculate Scaling and Offsets based on the Plane
         if (plane == CarvePlane.Top)
         {
             float targetWidth = Width * padMultiplier;
@@ -174,19 +150,21 @@ public class VoxelGrid
             scaleX = targetWidth / stencil.Width;
             scaleY = targetHeight / stencil.Height;
 
-            uniformScale = stretchToFill
-                ? 1.0f   // ← Use independent scaling when stretching
-                : Math.Min(scaleX, scaleY);
-
-            float finalScaleX = stretchToFill ? scaleX : uniformScale;
-            float finalScaleY = stretchToFill ? scaleY : uniformScale;
+            if (stretchToFill)
+            {
+                finalScaleX = scaleX;
+                finalScaleY = scaleY;
+            }
+            else
+            {
+                finalScaleX = finalScaleY = Math.Min(scaleX, scaleY);
+            }
 
             scaledWidth = stencil.Width * finalScaleX;
             scaledHeight = stencil.Height * finalScaleY;
 
-            // Center inside the bounding box
-            offsetXFinal = centerOffsetX + ((boundWidth - scaledWidth) / 2.0f) + offsetX;
-            offsetYFinal = centerOffsetY + ((boundHeight - scaledHeight) / 2.0f) + offsetY;
+            offsetXFinal = ((Width - scaledWidth) / 2.0f) + offsetX;
+            offsetYFinal = ((Height - scaledHeight) / 2.0f) + offsetY;
         }
         else // Front plane
         {
@@ -196,18 +174,21 @@ public class VoxelGrid
             scaleX = targetWidth / stencil.Width;
             scaleY = targetHeight / stencil.Height;
 
-            uniformScale = stretchToFill
-                ? 1.0f
-                : Math.Min(scaleX, scaleY);
-
-            float finalScaleX = stretchToFill ? scaleX : uniformScale;
-            float finalScaleY = stretchToFill ? scaleY : uniformScale;
+            if (stretchToFill)
+            {
+                finalScaleX = scaleX;
+                finalScaleY = scaleY;
+            }
+            else
+            {
+                finalScaleX = finalScaleY = Math.Min(scaleX, scaleY);
+            }
 
             scaledWidth = stencil.Width * finalScaleX;
             scaledHeight = stencil.Height * finalScaleY;
 
-            offsetXFinal = centerOffsetX + ((boundWidth - scaledWidth) / 2.0f) + offsetX;
-            offsetYFinal = centerOffsetZ + ((boundDepth - scaledHeight) / 2.0f) + offsetY;
+            offsetXFinal = ((Width - scaledWidth) / 2.0f) + offsetX;
+            offsetYFinal = ((Depth - scaledHeight) / 2.0f) + offsetY;
         }
 
         // 2. Iterate over the grid
@@ -223,32 +204,23 @@ public class VoxelGrid
                     {
                         float gridCenterX = x + 0.5f;
                         float gridCenterY = y + 0.5f;
-                        stencilX = (int)((gridCenterX - offsetXFinal) / uniformScale);
-
-                        // FIX: Invert Y axis. 2D bitmaps have Y=0 at the top, 
-                        // but 3D grids have Y=0 at the front/bottom.
-                        stencilY = (int)((offsetYFinal + scaledHeight - gridCenterY) / uniformScale);
+                        stencilX = (int)((gridCenterX - offsetXFinal) / finalScaleX);
+                        stencilY = (int)((gridCenterY - offsetYFinal) / finalScaleY);
                     }
                     else // Front plane
                     {
                         float gridCenterX = x + 0.5f;
                         float gridCenterZ = z + 0.5f;
-                        stencilX = (int)((gridCenterX - offsetXFinal) / uniformScale);
-
-                        // FIX: Invert Z axis. 2D bitmaps have Y=0 at the top, 
-                        // but 3D grids have Z=0 at the bottom.
-                        stencilY = (int)((offsetYFinal + scaledHeight - gridCenterZ) / uniformScale);
+                        stencilX = (int)((gridCenterX - offsetXFinal) / finalScaleX);
+                        stencilY = (int)((gridCenterZ - offsetYFinal) / finalScaleY);
                     }
 
-                    if (stencil.IsInBounds(stencilX, stencilY))
+                    if (stencil.IsInBounds(stencilX, stencilY) && stencil.Mask[stencilX, stencilY])
                     {
-                        if (stencil.Mask[stencilX, stencilY])
-                        {
-                            if (operation == CarveOperation.Extrude)
-                                SetVoxel(x, y, z, true);
-                            else if (operation == CarveOperation.Cut)
-                                SetVoxel(x, y, z, false);
-                        }
+                        if (operation == CarveOperation.Extrude)
+                            SetVoxel(x, y, z, true);
+                        else if (operation == CarveOperation.Cut)
+                            SetVoxel(x, y, z, false);
                     }
                 }
             }
