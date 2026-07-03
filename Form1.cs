@@ -22,6 +22,7 @@ namespace DualIllusionGenerator
         private VoxelGrid _lastPreviewGrid;
         private System.Windows.Forms.Timer _previewDebounce;
         private CancellationTokenSource _previewCts;
+        private float LetterSpacingPercent = 15f;
 
         public Form1()
         {
@@ -303,12 +304,15 @@ namespace DualIllusionGenerator
                 float scaleX = (slotWidth * 0.8f) / (maxLetterWidth * cos45);
                 float scaleZ = (letterVoxelCountZ * 0.9f) / maxStencilHeight;
 
+                float trackingFactor = 1f + (LetterSpacingPercent / 100f);
+
                 float minConst = Math.Min(slotWidth, (float)grid.Height) / (2f * sin45);
                 float scaleFit = float.MaxValue;
                 for (int i = 0; i < cutStencils.Count; i++)
                 {
                     int targetSlot = i + cutOffset;
-                    float pairScaleFit = (minConst - 1f) / ((extrudeStencils[targetSlot].Width + cutStencils[i].Width) / 2f);
+                    float pairWidth = (extrudeStencils[targetSlot].Width + cutStencils[i].Width) / 2f;
+                    float pairScaleFit = (minConst - 1f) / (pairWidth * trackingFactor);
                     if (pairScaleFit < scaleFit) scaleFit = pairScaleFit;
                 }
 
@@ -511,18 +515,18 @@ namespace DualIllusionGenerator
                                     letterVoxelCountZ, baseThicknessVoxels);
                             }
 
-                            if (checkBoxEnableSmoothing.Checked) 
+                            if (checkBoxEnableSmoothing.Checked)
                             {
                                 MeshData mesh = VoxelMesher.Generate(grid, isoLevel: 0.5f);
                                 MeshWelder.Weld(mesh);
                                 MeshSmoother.Smooth(mesh, smoothIterations);
                                 VoxelToStlExporter.ExportMeshToStl(mesh, filePath);
                             }
-                            else 
+                            else
                             {
                                 VoxelToStlExporter.Export(grid, filePath);
                             }
-                            
+
                         });
 
                         MessageBox.Show("Successfully exported to STL!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -918,9 +922,9 @@ namespace DualIllusionGenerator
                 smoothTrackBar.Visible = true;
                 lblSmoothAmount.Visible = true;
             }
-            else 
-            {  
-                smoothTrackBar.Visible = false; 
+            else
+            {
+                smoothTrackBar.Visible = false;
                 lblSmoothAmount.Visible = false;
             }
         }
@@ -933,6 +937,17 @@ namespace DualIllusionGenerator
         private void lblSmoothAmount_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudExtraLetterSpacing_ValueChanged(object sender, EventArgs e)
+        {
+            LetterSpacingPercent = (float)nudExtraLetterSpacing.Value;
+            OnPreviewSettingChanged(sender, e);
         }
     }
 }

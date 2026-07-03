@@ -45,6 +45,8 @@
             labelWidth = new Label();
             tabModeSelector = new TabControl();
             tabDualText = new TabPage();
+            nudExtraLetterSpacing = new NumericUpDown();
+            lblExtraDist = new Label();
             lblFont2 = new Label();
             lblFont1 = new Label();
             btnFont2 = new Button();
@@ -91,7 +93,6 @@
             panelPreview = new Panel();
             label9 = new Label();
             TextResolutionGroupBox = new GroupBox();
-            checkBox1 = new CheckBox();
             rbTextResUltra = new RadioButton();
             rbTextResVeryHigh = new RadioButton();
             rbTextResHigh = new RadioButton();
@@ -108,6 +109,7 @@
             ((System.ComponentModel.ISupportInitialize)nudSizeX).BeginInit();
             tabModeSelector.SuspendLayout();
             tabDualText.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)nudExtraLetterSpacing).BeginInit();
             tabDualImage.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudOffY2).BeginInit();
@@ -305,6 +307,8 @@
             // 
             // tabDualText
             // 
+            tabDualText.Controls.Add(nudExtraLetterSpacing);
+            tabDualText.Controls.Add(lblExtraDist);
             tabDualText.Controls.Add(lblFont2);
             tabDualText.Controls.Add(lblFont1);
             tabDualText.Controls.Add(btnFont2);
@@ -321,10 +325,29 @@
             tabDualText.Text = "Dual Text";
             tabDualText.UseVisualStyleBackColor = true;
             // 
+            // nudExtraLetterSpacing
+            // 
+            nudExtraLetterSpacing.Location = new Point(206, 98);
+            nudExtraLetterSpacing.Name = "nudExtraLetterSpacing";
+            nudExtraLetterSpacing.Size = new Size(120, 23);
+            nudExtraLetterSpacing.TabIndex = 6;
+            nudExtraLetterSpacing.Value = new decimal(new int[] { 15, 0, 0, 0 });
+            nudExtraLetterSpacing.ValueChanged += nudExtraLetterSpacing_ValueChanged;
+            // 
+            // lblExtraDist
+            // 
+            lblExtraDist.AutoSize = true;
+            lblExtraDist.Location = new Point(47, 100);
+            lblExtraDist.Name = "lblExtraDist";
+            lblExtraDist.Size = new Size(123, 15);
+            lblExtraDist.TabIndex = 12;
+            lblExtraDist.Text = "Extra Letter Spacing %";
+            lblExtraDist.Click += label10_Click;
+            // 
             // lblFont2
             // 
             lblFont2.AutoSize = true;
-            lblFont2.Location = new Point(328, 84);
+            lblFont2.Location = new Point(314, 59);
             lblFont2.Name = "lblFont2";
             lblFont2.Size = new Size(44, 15);
             lblFont2.TabIndex = 11;
@@ -333,7 +356,7 @@
             // lblFont1
             // 
             lblFont1.AutoSize = true;
-            lblFont1.Location = new Point(324, 47);
+            lblFont1.Location = new Point(310, 22);
             lblFont1.Name = "lblFont1";
             lblFont1.Size = new Size(38, 15);
             lblFont1.TabIndex = 10;
@@ -341,7 +364,7 @@
             // 
             // btnFont2
             // 
-            btnFont2.Location = new Point(220, 81);
+            btnFont2.Location = new Point(206, 56);
             btnFont2.Name = "btnFont2";
             btnFont2.Size = new Size(75, 23);
             btnFont2.TabIndex = 9;
@@ -351,7 +374,7 @@
             // 
             // btnFont1
             // 
-            btnFont1.Location = new Point(220, 45);
+            btnFont1.Location = new Point(206, 20);
             btnFont1.Name = "btnFont1";
             btnFont1.Size = new Size(75, 23);
             btnFont1.TabIndex = 8;
@@ -361,14 +384,14 @@
             // 
             // txtText2
             // 
-            txtText2.Location = new Point(84, 81);
+            txtText2.Location = new Point(70, 56);
             txtText2.Name = "txtText2";
             txtText2.Size = new Size(100, 23);
             txtText2.TabIndex = 7;
             // 
             // txtText1
             // 
-            txtText1.Location = new Point(84, 45);
+            txtText1.Location = new Point(70, 20);
             txtText1.Name = "txtText1";
             txtText1.Size = new Size(100, 23);
             txtText1.TabIndex = 6;
@@ -376,7 +399,7 @@
             // labelText2
             // 
             labelText2.AutoSize = true;
-            labelText2.Location = new Point(31, 84);
+            labelText2.Location = new Point(27, 59);
             labelText2.Name = "labelText2";
             labelText2.Size = new Size(37, 15);
             labelText2.TabIndex = 5;
@@ -385,7 +408,7 @@
             // labelText1
             // 
             labelText1.AutoSize = true;
-            labelText1.Location = new Point(31, 48);
+            labelText1.Location = new Point(27, 23);
             labelText1.Name = "labelText1";
             labelText1.Size = new Size(37, 15);
             labelText1.TabIndex = 4;
@@ -793,7 +816,6 @@
             // 
             // TextResolutionGroupBox
             // 
-            TextResolutionGroupBox.Controls.Add(checkBox1);
             TextResolutionGroupBox.Controls.Add(rbTextResUltra);
             TextResolutionGroupBox.Controls.Add(rbTextResVeryHigh);
             TextResolutionGroupBox.Controls.Add(rbTextResHigh);
@@ -806,16 +828,6 @@
             TextResolutionGroupBox.TabIndex = 6;
             TextResolutionGroupBox.TabStop = false;
             TextResolutionGroupBox.Text = "Text resolution";
-            // 
-            // checkBox1
-            // 
-            checkBox1.AutoSize = true;
-            checkBox1.Location = new Point(3, 19);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(82, 19);
-            checkBox1.TabIndex = 6;
-            checkBox1.Text = "checkBox1";
-            checkBox1.UseVisualStyleBackColor = true;
             // 
             // rbTextResUltra
             // 
@@ -940,6 +952,7 @@
             tabModeSelector.ResumeLayout(false);
             tabDualText.ResumeLayout(false);
             tabDualText.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)nudExtraLetterSpacing).EndInit();
             tabDualImage.ResumeLayout(false);
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
@@ -1029,9 +1042,10 @@
         private RadioButton rbTextResMedium;
         private RadioButton rbTextResLow;
         private RadioButton rbTextResVeryLow;
-        private CheckBox checkBox1;
         private CheckBox checkBoxEnableSmoothing;
         private TrackBar smoothTrackBar;
         private Label lblSmoothAmount;
+        private Label lblExtraDist;
+        private NumericUpDown nudExtraLetterSpacing;
     }
 }
