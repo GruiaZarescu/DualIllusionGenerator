@@ -78,6 +78,7 @@
             cbAction1 = new ComboBox();
             lblImg1Status = new Label();
             btnLoadImage1 = new Button();
+            panelPreview = new Panel();
             VoxelDensityGroupBox.SuspendLayout();
             CubeDimensionsGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudSizeZ).BeginInit();
@@ -615,11 +616,19 @@
             btnLoadImage1.UseVisualStyleBackColor = true;
             btnLoadImage1.Click += btnLoadImage1_Click;
             // 
+            // panelPreview
+            // 
+            panelPreview.Location = new Point(58, 29);
+            panelPreview.Name = "panelPreview";
+            panelPreview.Size = new Size(341, 161);
+            panelPreview.TabIndex = 3;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(860, 561);
+            Controls.Add(panelPreview);
             Controls.Add(tabModeSelector);
             Controls.Add(CubeDimensionsGroupBox);
             Controls.Add(VoxelDensityGroupBox);
@@ -702,5 +711,6 @@
         private Button btnFont1;
         private Label lblFont2;
         private Label lblFont1;
+        private Panel panelPreview;
     }
 }
