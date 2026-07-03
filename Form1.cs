@@ -238,14 +238,8 @@ namespace DualIllusionGenerator
         {
             if (isDualImageMode)
             {
-                if (op1 == CarveOperation.Extrude)
-                    grid.ApplyStencil(stencil1, CarvePlane.Front, CarveOperation.Extrude, stretch1, pad1, offX1, offY1);
-                if (op2 == CarveOperation.Extrude)
-                    grid.ApplyStencil(stencil2, CarvePlane.Top, CarveOperation.Extrude, stretch2, pad2, offX2, offY2);
-                if (op1 == CarveOperation.Cut)
-                    grid.ApplyStencil(stencil1, CarvePlane.Front, CarveOperation.Cut, stretch1, pad1, offX1, offY1);
-                if (op2 == CarveOperation.Cut)
-                    grid.ApplyStencil(stencil2, CarvePlane.Top, CarveOperation.Cut, stretch2, pad2, offX2, offY2);
+               if(stencil1!=null)grid.ApplyStencil(stencil1, CarvePlane.Front, op1, stretch1, pad1, offX1, offY1);
+               if(stencil2!=null)grid.ApplyStencil(stencil2, CarvePlane.Top, op2, stretch2, pad2, offX2, offY2);
             }
             else
             {
@@ -413,7 +407,7 @@ namespace DualIllusionGenerator
                 }
 
                 // Validation
-                if (stencil1 == null || stencil2 == null)
+                if (stencil1 == null && stencil2 == null)//Let's allow using only one image. 
                 {
                     return;
                 }
