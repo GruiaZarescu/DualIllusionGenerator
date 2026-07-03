@@ -62,4 +62,37 @@ namespace DualIllusionGenerator
             return result;
         }
     }
+
+    public static class MeshWelder
+    {
+        public static void Weld(MeshData mesh, float epsilon = 0.0001f)
+        {
+            var map = new Dictionary<(int, int, int), int>();
+            var newVertices = new List<Vector3>();
+            var remap = new int[mesh.Vertices.Count];
+
+            (int, int, int) Key(Vector3 v) =>
+                ((int)Math.Round(v.X / epsilon),
+                 (int)Math.Round(v.Y / epsilon),
+                 (int)Math.Round(v.Z / epsilon));
+
+            for (int i = 0; i < mesh.Vertices.Count; i++)
+            {
+                var key = Key(mesh.Vertices[i]);
+                if (!map.TryGetValue(key, out int newIndex))
+                {
+                    newIndex = newVertices.Count;
+                    newVertices.Add(mesh.Vertices[i]);
+                    map[key] = newIndex;
+                }
+                remap[i] = newIndex;
+            }
+
+            for (int i = 0; i < mesh.Triangles.Count; i++)
+                mesh.Triangles[i] = remap[mesh.Triangles[i]];
+
+            mesh.Vertices.Clear();
+            mesh.Vertices.AddRange(newVertices);
+        }
+    }
 }

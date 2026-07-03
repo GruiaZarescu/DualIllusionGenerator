@@ -335,9 +335,20 @@ namespace DualIllusionGenerator
                 for (int i = 0; i < cutStencils.Count; i++)
                 {
                     int targetSlot = i + cutOffset;
+
+                    // Match the cut stencil's vertical mapping to its paired extrude letter's
+                    // actual physical height, so a short letter (e.g. lowercase 'm') cutting
+                    // into a tall one (e.g. 'T') stretches to cover the full height instead
+                    // of leaving the top uncut.
+                    Stencil pairedExtrude = extrudeStencils[targetSlot];
+                    float cutHeightPx = cutStencils[i].TrueBottom > 0 ? cutStencils[i].TrueBottom : cutStencils[i].Height;
+                    float extrudeHeightPx = pairedExtrude.TrueBottom > 0 ? pairedExtrude.TrueBottom : pairedExtrude.Height;
+                    float cutHeightScale = uniformScale * (extrudeHeightPx / cutHeightPx);
+
                     grid.ApplyTextStencil(cutStencils[i], 45.0f, CarveOperation.Intersect,
                         slotCenters[targetSlot], uniformScale, slotWidth,
-                        extrudeBoundsList[targetSlot].HalfWidthX, baseThicknessVoxels);
+                        extrudeBoundsList[targetSlot].HalfWidthX, baseThicknessVoxels,
+                        heightScale: cutHeightScale);
                 }
             }
         }
@@ -503,6 +514,7 @@ namespace DualIllusionGenerator
                             if (checkBoxEnableSmoothing.Checked) 
                             {
                                 MeshData mesh = VoxelMesher.Generate(grid, isoLevel: 0.5f);
+                                MeshWelder.Weld(mesh);
                                 MeshSmoother.Smooth(mesh, smoothIterations);
                                 VoxelToStlExporter.ExportMeshToStl(mesh, filePath);
                             }
