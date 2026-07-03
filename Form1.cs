@@ -735,5 +735,95 @@ namespace DualIllusionGenerator
         {
 
         }
+
+        private void nudPad2_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudOffX2_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudOffY2_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudPad1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudOffX1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudOffY1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblImg1Status_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CubeDimensionsGroupBox_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudSizeY_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudSizeX_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panelPreview_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void rbDensityLow_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rbDensityMedium_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rbDensityHigh_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rbDensityVeryHigh_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rbDensityUltra_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void VoxelDensityGroupBox_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtImg2Text_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

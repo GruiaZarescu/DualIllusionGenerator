@@ -131,6 +131,7 @@
             VoxelDensityGroupBox.TabIndex = 1;
             VoxelDensityGroupBox.TabStop = false;
             VoxelDensityGroupBox.Text = "Voxel Density";
+            VoxelDensityGroupBox.Enter += VoxelDensityGroupBox_Enter;
             // 
             // rbDensityUltra
             // 
@@ -142,6 +143,7 @@
             rbDensityUltra.TabStop = true;
             rbDensityUltra.Text = "Ultra";
             rbDensityUltra.UseVisualStyleBackColor = true;
+            rbDensityUltra.CheckedChanged += rbDensityUltra_CheckedChanged;
             // 
             // rbDensityVeryHigh
             // 
@@ -153,6 +155,7 @@
             rbDensityVeryHigh.TabStop = true;
             rbDensityVeryHigh.Text = "Very High";
             rbDensityVeryHigh.UseVisualStyleBackColor = true;
+            rbDensityVeryHigh.CheckedChanged += rbDensityVeryHigh_CheckedChanged;
             // 
             // rbDensityHigh
             // 
@@ -164,6 +167,7 @@
             rbDensityHigh.TabStop = true;
             rbDensityHigh.Text = "High";
             rbDensityHigh.UseVisualStyleBackColor = true;
+            rbDensityHigh.CheckedChanged += rbDensityHigh_CheckedChanged;
             // 
             // rbDensityMedium
             // 
@@ -175,6 +179,7 @@
             rbDensityMedium.TabStop = true;
             rbDensityMedium.Text = "Medium";
             rbDensityMedium.UseVisualStyleBackColor = true;
+            rbDensityMedium.CheckedChanged += rbDensityMedium_CheckedChanged;
             // 
             // rbDensityLow
             // 
@@ -186,6 +191,7 @@
             rbDensityLow.TabStop = true;
             rbDensityLow.Text = "Low";
             rbDensityLow.UseVisualStyleBackColor = true;
+            rbDensityLow.CheckedChanged += rbDensityLow_CheckedChanged;
             // 
             // rbDensityVeryLow
             // 
@@ -213,6 +219,7 @@
             CubeDimensionsGroupBox.TabIndex = 2;
             CubeDimensionsGroupBox.TabStop = false;
             CubeDimensionsGroupBox.Text = "Box Dimensions(mm)";
+            CubeDimensionsGroupBox.Enter += CubeDimensionsGroupBox_Enter;
             // 
             // nudSizeZ
             // 
@@ -234,6 +241,7 @@
             nudSizeY.Size = new Size(120, 23);
             nudSizeY.TabIndex = 4;
             nudSizeY.Value = new decimal(new int[] { 50, 0, 0, 0 });
+            nudSizeY.ValueChanged += nudSizeY_ValueChanged;
             // 
             // nudSizeX
             // 
@@ -244,6 +252,7 @@
             nudSizeX.Size = new Size(120, 23);
             nudSizeX.TabIndex = 3;
             nudSizeX.Value = new decimal(new int[] { 200, 0, 0, 0 });
+            nudSizeX.ValueChanged += nudSizeX_ValueChanged;
             // 
             // labelHeight
             // 
@@ -437,6 +446,7 @@
             txtImg2Text.Size = new Size(117, 23);
             txtImg2Text.TabIndex = 20;
             txtImg2Text.Visible = false;
+            txtImg2Text.TextChanged += txtImg2Text_TextChanged;
             // 
             // rbImg2Text
             // 
@@ -468,6 +478,7 @@
             nudOffY2.Name = "nudOffY2";
             nudOffY2.Size = new Size(120, 23);
             nudOffY2.TabIndex = 20;
+            nudOffY2.ValueChanged += nudOffY2_ValueChanged;
             // 
             // chkStretch2
             // 
@@ -486,6 +497,7 @@
             nudOffX2.Name = "nudOffX2";
             nudOffX2.Size = new Size(120, 23);
             nudOffX2.TabIndex = 19;
+            nudOffX2.ValueChanged += nudOffX2_ValueChanged;
             // 
             // label2
             // 
@@ -504,6 +516,7 @@
             nudPad2.Size = new Size(120, 23);
             nudPad2.TabIndex = 18;
             nudPad2.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            nudPad2.ValueChanged += nudPad2_ValueChanged;
             // 
             // label6
             // 
@@ -650,6 +663,7 @@
             nudOffY1.Name = "nudOffY1";
             nudOffY1.Size = new Size(120, 23);
             nudOffY1.TabIndex = 14;
+            nudOffY1.ValueChanged += nudOffY1_ValueChanged;
             // 
             // nudOffX1
             // 
@@ -659,6 +673,7 @@
             nudOffX1.Name = "nudOffX1";
             nudOffX1.Size = new Size(120, 23);
             nudOffX1.TabIndex = 13;
+            nudOffX1.ValueChanged += nudOffX1_ValueChanged;
             // 
             // nudPad1
             // 
@@ -668,6 +683,7 @@
             nudPad1.Size = new Size(120, 23);
             nudPad1.TabIndex = 12;
             nudPad1.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            nudPad1.ValueChanged += nudPad1_ValueChanged;
             // 
             // label5
             // 
@@ -735,6 +751,7 @@
             lblImg1Status.TabIndex = 5;
             lblImg1Status.Text = "imgStatus";
             lblImg1Status.Visible = false;
+            lblImg1Status.Click += lblImg1Status_Click;
             // 
             // btnLoadImage1
             // 
@@ -752,6 +769,7 @@
             panelPreview.Name = "panelPreview";
             panelPreview.Size = new Size(341, 161);
             panelPreview.TabIndex = 3;
+            panelPreview.Paint += panelPreview_Paint;
             // 
             // Form1
             // 
