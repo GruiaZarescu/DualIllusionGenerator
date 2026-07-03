@@ -138,17 +138,48 @@ public class VoxelGrid
     {
         float scaleX, scaleY, finalScaleX, finalScaleY, scaledWidth, scaledHeight, offsetXFinal, offsetYFinal;
 
-        // Calculate padding multiplier (only meaningful for Cut in many cases)
         float effectivePadding = (operation == CarveOperation.Cut) ? paddingPercent : 0f;
         float padMultiplier = 1.0f - (effectivePadding / 100.0f);
 
+        // NEW: For Cut operations, fit to the existing extruded solid bounds
+        int targetWidth, targetHeight, targetDepth;
+        float centerOffsetX = 0, centerOffsetY = 0, centerOffsetZ = 0;
+
+        if (operation == CarveOperation.Cut)
+        {
+            var bounds = GetSolidBounds();
+            if (bounds.minX <= bounds.maxX) // valid bounds found
+            {
+                targetWidth = bounds.maxX - bounds.minX + 1;
+                targetHeight = bounds.maxY - bounds.minY + 1;
+                targetDepth = bounds.maxZ - bounds.minZ + 1;
+
+                centerOffsetX = bounds.minX;
+                centerOffsetY = bounds.minY;
+                centerOffsetZ = bounds.minZ;
+            }
+            else
+            {
+                // Fallback to full grid if nothing is extruded yet
+                targetWidth = Width;
+                targetHeight = Height;
+                targetDepth = Depth;
+            }
+        }
+        else // Extrude - always use full grid
+        {
+            targetWidth = Width;
+            targetHeight = Height;
+            targetDepth = Depth;
+        }
+
         if (plane == CarvePlane.Top)
         {
-            float targetWidth = Width * padMultiplier;
-            float targetHeight = Height * padMultiplier;
+            float targetW = targetWidth * padMultiplier;
+            float targetH = targetHeight * padMultiplier;
 
-            scaleX = targetWidth / stencil.Width;
-            scaleY = targetHeight / stencil.Height;
+            scaleX = targetW / stencil.Width;
+            scaleY = targetH / stencil.Height;
 
             if (stretchToFill)
             {
@@ -163,16 +194,16 @@ public class VoxelGrid
             scaledWidth = stencil.Width * finalScaleX;
             scaledHeight = stencil.Height * finalScaleY;
 
-            offsetXFinal = ((Width - scaledWidth) / 2.0f) + offsetX;
-            offsetYFinal = ((Height - scaledHeight) / 2.0f) + offsetY;
+            offsetXFinal = centerOffsetX + ((targetWidth - scaledWidth) / 2.0f) + offsetX;
+            offsetYFinal = centerOffsetY + ((targetHeight - scaledHeight) / 2.0f) + offsetY;
         }
         else // Front plane
         {
-            float targetWidth = Width * padMultiplier;
-            float targetHeight = Depth * padMultiplier;
+            float targetW = targetWidth * padMultiplier;
+            float targetH = targetDepth * padMultiplier;
 
-            scaleX = targetWidth / stencil.Width;
-            scaleY = targetHeight / stencil.Height;
+            scaleX = targetW / stencil.Width;
+            scaleY = targetH / stencil.Height;
 
             if (stretchToFill)
             {
@@ -187,8 +218,8 @@ public class VoxelGrid
             scaledWidth = stencil.Width * finalScaleX;
             scaledHeight = stencil.Height * finalScaleY;
 
-            offsetXFinal = ((Width - scaledWidth) / 2.0f) + offsetX;
-            offsetYFinal = ((Depth - scaledHeight) / 2.0f) + offsetY;
+            offsetXFinal = centerOffsetX + ((targetWidth - scaledWidth) / 2.0f) + offsetX;
+            offsetYFinal = centerOffsetZ + ((targetDepth - scaledHeight) / 2.0f) + offsetY;
         }
 
         // 2. Iterate over the grid
