@@ -7,19 +7,12 @@
 
     public static class TextManager
     {
-        // Characters are always rasterized at this pixel height, no matter what
-        // point size was picked in the Font dialog. The Font dialog's size field
-        // still controls typeface/style/weight — just not raster resolution.
-        // Downstream, uniformScale (in Form1) scales this back down to the
-        // physical model size, so more source pixels = smoother curved edges
-        // once voxelized, regardless of how small the letter ends up physically.
-        private const float RenderPixelHeight = 512f;
 
-        public static List<Stencil> CreateStencilsFromText(string text, Font font)
+        public static List<Stencil> CreateStencilsFromText(string text, Font font,float renderPixelHeight =512f)
         {
             List<Stencil> stencils = new List<Stencil>();
 
-            using (Font renderFont = new Font(font.FontFamily, RenderPixelHeight, font.Style, GraphicsUnit.Pixel))
+            using (Font renderFont = new Font(font.FontFamily, renderPixelHeight , font.Style, GraphicsUnit.Pixel))
             using (Bitmap measureBmp = new Bitmap(1, 1))
             using (Graphics measureG = Graphics.FromImage(measureBmp))
             {
@@ -54,13 +47,13 @@
         /// <summary>
         /// Renders an entire text string into a single Stencil for Dual Image mode.
         /// </summary>
-        public static Stencil CreateWholeTextStencil(string text, Font font)
+        public static Stencil CreateWholeTextStencil(string text, Font font,float renderPixelHeight = 512f)
         {
             if (string.IsNullOrWhiteSpace(text))
                 throw new Exception("Text is empty.");
 
             // Force a consistent render resolution for clean edges
-            using (Font renderFont = new Font(font.FontFamily, RenderPixelHeight, font.Style, GraphicsUnit.Pixel))
+            using (Font renderFont = new Font(font.FontFamily, renderPixelHeight, font.Style, GraphicsUnit.Pixel))
             using (Bitmap measureBmp = new Bitmap(1, 1))
             using (Graphics measureG = Graphics.FromImage(measureBmp))
             {

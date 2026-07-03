@@ -49,6 +49,18 @@ namespace DualIllusionGenerator
             _previewDebounce.Tick += (s, e) => { _previewDebounce.Stop(); _ = RegeneratePreviewAsync(); };
         }
 
+        public float GetTextResolution()
+        {
+            float textRes = 0f;
+            if (rbTextResVeryLow.Checked) textRes = 32;
+            else if (rbTextResLow.Checked) textRes = 64;
+            else if (rbTextResMedium.Checked) textRes = 128;
+            else if (rbTextResHigh.Checked) textRes = 256;
+            else if (rbTextResVeryHigh.Checked) textRes = 512;
+            else if (rbTextResUltra.Checked) textRes = 1024;
+            return textRes;
+        }
+
         private void WireUpPreviewTriggers()
         {
             void Hook(System.Windows.Forms.Control c)
@@ -128,7 +140,7 @@ namespace DualIllusionGenerator
                     if (rbImg1Text.Checked)
                     {
                         if (!string.IsNullOrWhiteSpace(txtImg1Text.Text))
-                            stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1);
+                            stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1,GetTextResolution());
                     }
                     else
                     {
@@ -139,7 +151,7 @@ namespace DualIllusionGenerator
                     if (rbImg2Text.Checked)
                     {
                         if (!string.IsNullOrWhiteSpace(txtImg2Text.Text))
-                            stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2);
+                            stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2,GetTextResolution());
                     }
                     else
                     {
@@ -255,8 +267,8 @@ namespace DualIllusionGenerator
                 if (baseThicknessVoxels > 0)
                     grid.AddBasePlate(baseThicknessVoxels);
 
-                List<Stencil> stencils1 = TextManager.CreateStencilsFromText(text1, font1);
-                List<Stencil> stencils2 = TextManager.CreateStencilsFromText(text2, font2);
+                List<Stencil> stencils1 = TextManager.CreateStencilsFromText(text1, font1,GetTextResolution());
+                List<Stencil> stencils2 = TextManager.CreateStencilsFromText(text2, font2,GetTextResolution());
 
                 if (stencils1.Count == 0 && stencils2.Count == 0) return;
 
@@ -406,7 +418,7 @@ namespace DualIllusionGenerator
                 if (rbImg1Text.Checked)
                 {
                     if (!string.IsNullOrWhiteSpace(txtImg1Text.Text))
-                        stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1);
+                        stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1, GetTextResolution());
                 }
                 else
                 {
@@ -417,7 +429,7 @@ namespace DualIllusionGenerator
                 if (rbImg2Text.Checked)
                 {
                     if (!string.IsNullOrWhiteSpace(txtImg2Text.Text))
-                        stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2);
+                        stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2, GetTextResolution());
                 }
                 else
                 {

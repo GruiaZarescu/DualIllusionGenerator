@@ -89,6 +89,14 @@
             lblImg1Status = new Label();
             btnLoadImage1 = new Button();
             panelPreview = new Panel();
+            label9 = new Label();
+            TextResolutionGroupBox = new GroupBox();
+            rbTextResUltra = new RadioButton();
+            rbTextResVeryHigh = new RadioButton();
+            rbTextResHigh = new RadioButton();
+            rbTextResMedium = new RadioButton();
+            rbTextResLow = new RadioButton();
+            rbTextResVeryLow = new RadioButton();
             VoxelDensityGroupBox.SuspendLayout();
             CubeDimensionsGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudSizeZ).BeginInit();
@@ -105,6 +113,7 @@
             ((System.ComponentModel.ISupportInitialize)nudOffY1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudOffX1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudPad1).BeginInit();
+            TextResolutionGroupBox.SuspendLayout();
             SuspendLayout();
             // 
             // btnExport
@@ -125,9 +134,9 @@
             VoxelDensityGroupBox.Controls.Add(rbDensityMedium);
             VoxelDensityGroupBox.Controls.Add(rbDensityLow);
             VoxelDensityGroupBox.Controls.Add(rbDensityVeryLow);
-            VoxelDensityGroupBox.Location = new Point(672, 12);
+            VoxelDensityGroupBox.Location = new Point(526, 12);
             VoxelDensityGroupBox.Name = "VoxelDensityGroupBox";
-            VoxelDensityGroupBox.Size = new Size(200, 184);
+            VoxelDensityGroupBox.Size = new Size(91, 184);
             VoxelDensityGroupBox.TabIndex = 1;
             VoxelDensityGroupBox.TabStop = false;
             VoxelDensityGroupBox.Text = "Voxel Density";
@@ -213,7 +222,7 @@
             CubeDimensionsGroupBox.Controls.Add(labelHeight);
             CubeDimensionsGroupBox.Controls.Add(labelDepth);
             CubeDimensionsGroupBox.Controls.Add(labelWidth);
-            CubeDimensionsGroupBox.Location = new Point(466, 12);
+            CubeDimensionsGroupBox.Location = new Point(320, 12);
             CubeDimensionsGroupBox.Name = "CubeDimensionsGroupBox";
             CubeDimensionsGroupBox.Size = new Size(200, 184);
             CubeDimensionsGroupBox.TabIndex = 2;
@@ -287,7 +296,7 @@
             // 
             tabModeSelector.Controls.Add(tabDualText);
             tabModeSelector.Controls.Add(tabDualImage);
-            tabModeSelector.Location = new Point(43, 222);
+            tabModeSelector.Location = new Point(35, 202);
             tabModeSelector.Name = "tabModeSelector";
             tabModeSelector.SelectedIndex = 0;
             tabModeSelector.Size = new Size(803, 255);
@@ -765,17 +774,109 @@
             // 
             // panelPreview
             // 
-            panelPreview.Location = new Point(58, 29);
+            panelPreview.Location = new Point(21, 29);
             panelPreview.Name = "panelPreview";
-            panelPreview.Size = new Size(341, 161);
+            panelPreview.Size = new Size(281, 161);
             panelPreview.TabIndex = 3;
             panelPreview.Paint += panelPreview_Paint;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(30, 7);
+            label9.Name = "label9";
+            label9.Size = new Size(85, 15);
+            label9.TabIndex = 4;
+            label9.Text = "Model Preview";
+            // 
+            // TextResolutionGroupBox
+            // 
+            TextResolutionGroupBox.Controls.Add(rbTextResUltra);
+            TextResolutionGroupBox.Controls.Add(rbTextResVeryHigh);
+            TextResolutionGroupBox.Controls.Add(rbTextResHigh);
+            TextResolutionGroupBox.Controls.Add(rbTextResMedium);
+            TextResolutionGroupBox.Controls.Add(rbTextResLow);
+            TextResolutionGroupBox.Controls.Add(rbTextResVeryLow);
+            TextResolutionGroupBox.Location = new Point(623, 12);
+            TextResolutionGroupBox.Name = "TextResolutionGroupBox";
+            TextResolutionGroupBox.Size = new Size(98, 184);
+            TextResolutionGroupBox.TabIndex = 6;
+            TextResolutionGroupBox.TabStop = false;
+            TextResolutionGroupBox.Text = "Text resolution";
+            // 
+            // rbTextResUltra
+            // 
+            rbTextResUltra.AutoSize = true;
+            rbTextResUltra.Location = new Point(6, 159);
+            rbTextResUltra.Name = "rbTextResUltra";
+            rbTextResUltra.Size = new Size(50, 19);
+            rbTextResUltra.TabIndex = 5;
+            rbTextResUltra.TabStop = true;
+            rbTextResUltra.Text = "Ultra";
+            rbTextResUltra.UseVisualStyleBackColor = true;
+            // 
+            // rbTextResVeryHigh
+            // 
+            rbTextResVeryHigh.AutoSize = true;
+            rbTextResVeryHigh.Location = new Point(6, 134);
+            rbTextResVeryHigh.Name = "rbTextResVeryHigh";
+            rbTextResVeryHigh.Size = new Size(76, 19);
+            rbTextResVeryHigh.TabIndex = 4;
+            rbTextResVeryHigh.TabStop = true;
+            rbTextResVeryHigh.Text = "Very High";
+            rbTextResVeryHigh.UseVisualStyleBackColor = true;
+            // 
+            // rbTextResHigh
+            // 
+            rbTextResHigh.AutoSize = true;
+            rbTextResHigh.Location = new Point(6, 109);
+            rbTextResHigh.Name = "rbTextResHigh";
+            rbTextResHigh.Size = new Size(51, 19);
+            rbTextResHigh.TabIndex = 3;
+            rbTextResHigh.TabStop = true;
+            rbTextResHigh.Text = "High";
+            rbTextResHigh.UseVisualStyleBackColor = true;
+            // 
+            // rbTextResMedium
+            // 
+            rbTextResMedium.AutoSize = true;
+            rbTextResMedium.Location = new Point(6, 84);
+            rbTextResMedium.Name = "rbTextResMedium";
+            rbTextResMedium.Size = new Size(70, 19);
+            rbTextResMedium.TabIndex = 2;
+            rbTextResMedium.TabStop = true;
+            rbTextResMedium.Text = "Medium";
+            rbTextResMedium.UseVisualStyleBackColor = true;
+            // 
+            // rbTextResLow
+            // 
+            rbTextResLow.AutoSize = true;
+            rbTextResLow.Location = new Point(6, 59);
+            rbTextResLow.Name = "rbTextResLow";
+            rbTextResLow.Size = new Size(47, 19);
+            rbTextResLow.TabIndex = 1;
+            rbTextResLow.TabStop = true;
+            rbTextResLow.Text = "Low";
+            rbTextResLow.UseVisualStyleBackColor = true;
+            // 
+            // rbTextResVeryLow
+            // 
+            rbTextResVeryLow.AutoSize = true;
+            rbTextResVeryLow.Location = new Point(6, 34);
+            rbTextResVeryLow.Name = "rbTextResVeryLow";
+            rbTextResVeryLow.Size = new Size(72, 19);
+            rbTextResVeryLow.TabIndex = 0;
+            rbTextResVeryLow.TabStop = true;
+            rbTextResVeryLow.Text = "Very Low";
+            rbTextResVeryLow.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(860, 561);
+            Controls.Add(TextResolutionGroupBox);
+            Controls.Add(label9);
             Controls.Add(panelPreview);
             Controls.Add(tabModeSelector);
             Controls.Add(CubeDimensionsGroupBox);
@@ -804,7 +905,10 @@
             ((System.ComponentModel.ISupportInitialize)nudOffY1).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudOffX1).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudPad1).EndInit();
+            TextResolutionGroupBox.ResumeLayout(false);
+            TextResolutionGroupBox.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -870,5 +974,13 @@
         private Label lblImg2Font;
         private Button btnImg2Font;
         private TextBox txtImg2Text;
+        private Label label9;
+        private GroupBox TextResolutionGroupBox;
+        private RadioButton rbTextResUltra;
+        private RadioButton rbTextResVeryHigh;
+        private RadioButton rbTextResHigh;
+        private RadioButton rbTextResMedium;
+        private RadioButton rbTextResLow;
+        private RadioButton rbTextResVeryLow;
     }
 }
