@@ -70,6 +70,12 @@ namespace DualIllusionGenerator
             _previewDebounce.Start();
         }
 
+        private async void _previewDebounce_Tick(object sender, EventArgs e)
+        {
+            _previewDebounce.Stop();
+            await RegeneratePreviewAsync();
+        }
+
         private async Task RegeneratePreviewAsync()
         {
             _lastPreviewGrid = null; // invalidate immediately so a racing export doesn't use stale grid
@@ -150,19 +156,44 @@ namespace DualIllusionGenerator
                 var faceData = await Task.Run(() => VoxelFaceBuilder.Build(grid), cts.Token);
                 if (cts.Token.IsCancellationRequested) return;
 
-                var wpfMesh = new MeshGeometry3D();
-                foreach (var v in faceData.Vertices)
-                    wpfMesh.Positions.Add(new Point3D(v.X, v.Y, v.Z));
-                foreach (var n in faceData.Normals)
-                    wpfMesh.Normals.Add(new Vector3D(n.X, n.Y, n.Z));
-                foreach (var t in faceData.Triangles)
-                    wpfMesh.TriangleIndices.Add(t);
+                // --- FIX: BUILD WPF MESH ON BACKGROUND THREAD AND FREEZE IT ---
+                MeshGeometry3D wpfMesh = null;
+                await Task.Run(() =>
+                {
+                    var positions = new Point3DCollection(faceData.Vertices.Count);
+                    foreach (var v in faceData.Vertices) positions.Add(new Point3D(v.X, v.Y, v.Z));
 
-                var model = new GeometryModel3D(
-                    wpfMesh,
-                    new DiffuseMaterial(new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 180, 60))));
-                model.BackMaterial = new DiffuseMaterial(
-                    new SolidColorBrush(System.Windows.Media.Color.FromRgb(180, 60, 60)));
+                    var normals = new Vector3DCollection(faceData.Normals.Count);
+                    foreach (var n in faceData.Normals) normals.Add(new Vector3D(n.X, n.Y, n.Z));
+
+                    var indices = new Int32Collection(faceData.Triangles.Count);
+                    foreach (var t in faceData.Triangles) indices.Add(t);
+
+                    wpfMesh = new MeshGeometry3D
+                    {
+                        Positions = positions,
+                        Normals = normals,
+                        TriangleIndices = indices
+                    };
+
+                    // Freeze makes the object cross-thread accessible and stops UI notification spam
+                    wpfMesh.Freeze();
+                }, cts.Token);
+
+                if (cts.Token.IsCancellationRequested) return;
+
+                // Freeze materials too so they don't trigger UI updates
+                var brush1 = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 180, 60));
+                brush1.Freeze();
+                var mat1 = new DiffuseMaterial(brush1);
+                mat1.Freeze();
+
+                var brush2 = new SolidColorBrush(System.Windows.Media.Color.FromRgb(180, 60, 60));
+                brush2.Freeze();
+                var mat2 = new DiffuseMaterial(brush2);
+                mat2.Freeze();
+
+                var model = new GeometryModel3D(wpfMesh, mat1) { BackMaterial = mat2 };
 
                 if (_lettersModel != null) _viewport.Children.Remove(_lettersModel);
                 _lettersModel = new ModelVisual3D { Content = model };
