@@ -1,8 +1,9 @@
-using static VoxelGrid;
+using HelixToolkit.Wpf;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using HelixToolkit.Wpf;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using static VoxelGrid;
 
 namespace DualIllusionGenerator
 {
@@ -12,6 +13,8 @@ namespace DualIllusionGenerator
         private Stencil _stencil2;
         private Font _font1 = new Font("Arial", 12, FontStyle.Regular);
         private Font _font2 = new Font("Arial", 12, FontStyle.Regular);
+        private Font _imgFont1 = new Font("Arial", 12, FontStyle.Regular);
+        private Font _imgFont2 = new Font("Arial", 12, FontStyle.Regular);
 
         private HelixViewport3D _viewport;
         private ModelVisual3D _lettersModel;
@@ -112,43 +115,62 @@ namespace DualIllusionGenerator
                 Stencil stencil1 = null, stencil2 = null;
                 if (isDualImageMode)
                 {
-                    if (_stencil1 == null || _stencil2 == null) return;
-                    op1 = cbAction1.SelectedItem?.ToString() == "Extrude" ? CarveOperation.Extrude : CarveOperation.Cut;
-                    op2 = cbAction2.SelectedItem?.ToString() == "Extrude" ? CarveOperation.Extrude : CarveOperation.Cut;
-                    stretch1 = chkStretch1.Checked; stretch2 = chkStretch2.Checked;
-                    pad1 = (float)nudPad1.Value; pad2 = (float)nudPad2.Value;
-                    offX1 = (float)nudOffX1.Value; offY1 = (float)nudOffY1.Value;
-                    offX2 = (float)nudOffX2.Value; offY2 = (float)nudOffY2.Value;
-                    stencil1 = _stencil1; stencil2 = _stencil2;
-                }
-
-                VoxelGrid grid = await Task.Run(() =>
-                {
-                    if (cts.Token.IsCancellationRequested) return null;
-
-                    int cx = (int)Math.Floor(sizeX / voxelSizeMm);
-                    int cy = (int)Math.Floor(sizeY / voxelSizeMm);
-                    int lz = (int)Math.Floor(sizeZ / voxelSizeMm);
-                    if (cx < 1 || cy < 1 || lz < 1) return null;
-
-                    int baseVox = 0;
-                    if (!isDualImageMode)
+                    // Determine Stencil 1
+                    if (rbImg1Text.Checked)
                     {
-                        float baseMm = Math.Max(3f, Math.Min(7f, sizeZ * 0.05f));
-                        baseVox = Math.Max(1, (int)Math.Ceiling(baseMm / voxelSizeMm));
+                        if (!string.IsNullOrWhiteSpace(txtImg1Text.Text))
+                            stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1);
+                    }
+                    else
+                    {
+                        stencil1 = _stencil1;
                     }
 
-                    var g = new VoxelGrid(cx, cy, lz + baseVox, voxelSizeMm);
-                    BuildGrid(g, isDualImageMode,
-                        text1, text2, font1, font2,
-                        stencil1, stencil2,
-                        op1, op2,
-                        stretch1, stretch2,
-                        pad1, pad2,
-                        offX1, offY1, offX2, offY2,
-                        lz, baseVox);
-                    return g;
-                }, cts.Token);
+                    // Determine Stencil 2
+                    if (rbImg2Text.Checked)
+                    {
+                        if (!string.IsNullOrWhiteSpace(txtImg2Text.Text))
+                            stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2);
+                    }
+                    else
+                    {
+                        stencil2 = _stencil2;
+                    }
+
+                    // Validation
+                    if (stencil1 == null || stencil2 == null)
+                    {
+                        // In preview, just return. In export, show a message box
+                        return;
+                    }
+                }
+                VoxelGrid grid = await Task.Run(() =>
+            {
+                if (cts.Token.IsCancellationRequested) return null;
+
+                int cx = (int)Math.Floor(sizeX / voxelSizeMm);
+                int cy = (int)Math.Floor(sizeY / voxelSizeMm);
+                int lz = (int)Math.Floor(sizeZ / voxelSizeMm);
+                if (cx < 1 || cy < 1 || lz < 1) return null;
+
+                int baseVox = 0;
+                if (!isDualImageMode)
+                {
+                    float baseMm = Math.Max(3f, Math.Min(7f, sizeZ * 0.05f));
+                    baseVox = Math.Max(1, (int)Math.Ceiling(baseMm / voxelSizeMm));
+                }
+
+                var g = new VoxelGrid(cx, cy, lz + baseVox, voxelSizeMm);
+                BuildGrid(g, isDualImageMode,
+                    text1, text2, font1, font2,
+                    stencil1, stencil2,
+                    op1, op2,
+                    stretch1, stretch2,
+                    pad1, pad2,
+                    offX1, offY1, offX2, offY2,
+                    lz, baseVox);
+                return g;
+            }, cts.Token);
 
                 if (cts.Token.IsCancellationRequested || grid == null) return;
                 _lastPreviewGrid = grid;
@@ -365,25 +387,36 @@ namespace DualIllusionGenerator
             string text1 = "", text2 = "";
             Font localFont1 = null, localFont2 = null;
 
+            Stencil stencil1 = null, stencil2 = null;
             if (isDualImageMode)
             {
-                if (cbAction1.SelectedItem?.ToString() == cbAction2.SelectedItem?.ToString())
+                // Determine Stencil 1
+                if (rbImg1Text.Checked)
                 {
-                    MessageBox.Show("Actions cannot be the same. One must Extrude and one must Cut.", "Action Conflict", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (!string.IsNullOrWhiteSpace(txtImg1Text.Text))
+                        stencil1 = TextManager.CreateWholeTextStencil(txtImg1Text.Text, _imgFont1);
+                }
+                else
+                {
+                    stencil1 = _stencil1;
+                }
+
+                // Determine Stencil 2
+                if (rbImg2Text.Checked)
+                {
+                    if (!string.IsNullOrWhiteSpace(txtImg2Text.Text))
+                        stencil2 = TextManager.CreateWholeTextStencil(txtImg2Text.Text, _imgFont2);
+                }
+                else
+                {
+                    stencil2 = _stencil2;
+                }
+
+                // Validation
+                if (stencil1 == null || stencil2 == null)
+                {
                     return;
                 }
-                if (_stencil1 == null || _stencil2 == null)
-                {
-                    MessageBox.Show("Please load both images.", "Missing Images", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                op1 = cbAction1.SelectedItem?.ToString() == "Extrude" ? CarveOperation.Extrude : CarveOperation.Cut;
-                op2 = cbAction2.SelectedItem?.ToString() == "Extrude" ? CarveOperation.Extrude : CarveOperation.Cut;
-                stretch1 = chkStretch1.Checked; stretch2 = chkStretch2.Checked;
-                pad1 = (float)nudPad1.Value; pad2 = (float)nudPad2.Value;
-                offX1 = (float)nudOffX1.Value; offY1 = (float)nudOffY1.Value;
-                offX2 = (float)nudOffX2.Value; offY2 = (float)nudOffY2.Value;
-                localStencil1 = _stencil1; localStencil2 = _stencil2;
             }
             else
             {
@@ -533,6 +566,56 @@ namespace DualIllusionGenerator
                 {
                     _font2 = fd.Font;
                     lblFont2.Text = $"{_font2.Name} ({_font2.Size})";
+                    OnPreviewSettingChanged(sender, e);
+                }
+            }
+        }
+
+        private void rbImg1Image_CheckedChanged(object sender, EventArgs e)
+        {
+            bool isText = rbImg1Text.Checked;
+            txtImg1Text.Visible = isText;
+            btnImg1Font.Visible = isText;
+            lblImg1Font.Visible = isText;
+            btnLoadImage1.Visible = !isText;
+            lblImg1Status.Visible = !isText;
+            OnPreviewSettingChanged(sender, e);
+        }
+
+        private void rbImg2Image_CheckedChanged(object sender, EventArgs e)
+        {
+            bool isText = rbImg2Text.Checked;
+            txtImg2Text.Visible = isText;
+            btnImg2Font.Visible = isText;
+            lblImg2Font.Visible = isText;
+            btnLoadImage2.Visible = !isText;
+            lblImg2Status.Visible = !isText;
+            OnPreviewSettingChanged(sender, e);
+        }
+
+        private void btnImg1Font_Click(object sender, EventArgs e)
+        {
+            using (FontDialog fd = new FontDialog())
+            {
+                fd.Font = _imgFont1;
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    _imgFont1 = fd.Font;
+                    lblImg1Font.Text = $"{_imgFont1.Name}";
+                    OnPreviewSettingChanged(sender, e);
+                }
+            }
+        }
+
+        private void btnImg2Font_Click(object sender, EventArgs e)
+        {
+            using (FontDialog fd = new FontDialog())
+            {
+                fd.Font = _imgFont2;
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    _imgFont2 = fd.Font;
+                    lblImg2Font.Text = $"{_imgFont2.Name}";
                     OnPreviewSettingChanged(sender, e);
                 }
             }

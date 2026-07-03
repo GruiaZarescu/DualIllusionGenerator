@@ -55,6 +55,11 @@
             labelText1 = new Label();
             tabDualImage = new TabPage();
             groupBox2 = new GroupBox();
+            lblImg2Font = new Label();
+            btnImg2Font = new Button();
+            txtImg2Text = new TextBox();
+            rbImg2Text = new RadioButton();
+            rbImg2Image = new RadioButton();
             nudOffY2 = new NumericUpDown();
             chkStretch2 = new CheckBox();
             nudOffX2 = new NumericUpDown();
@@ -67,6 +72,11 @@
             label8 = new Label();
             btnLoadImage2 = new Button();
             groupBox1 = new GroupBox();
+            lblImg1Font = new Label();
+            btnImg1Font = new Button();
+            txtImg1Text = new TextBox();
+            rbImg1Text = new RadioButton();
+            rbImg1Image = new RadioButton();
             nudOffY1 = new NumericUpDown();
             nudOffX1 = new NumericUpDown();
             nudPad1 = new NumericUpDown();
@@ -376,6 +386,11 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(lblImg2Font);
+            groupBox2.Controls.Add(btnImg2Font);
+            groupBox2.Controls.Add(txtImg2Text);
+            groupBox2.Controls.Add(rbImg2Text);
+            groupBox2.Controls.Add(rbImg2Image);
             groupBox2.Controls.Add(nudOffY2);
             groupBox2.Controls.Add(chkStretch2);
             groupBox2.Controls.Add(nudOffX2);
@@ -394,6 +409,56 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Image 2 (Top Plane)";
             groupBox2.Enter += groupBox2_Enter;
+            // 
+            // lblImg2Font
+            // 
+            lblImg2Font.AutoSize = true;
+            lblImg2Font.Location = new Point(291, 146);
+            lblImg2Font.Name = "lblImg2Font";
+            lblImg2Font.Size = new Size(38, 15);
+            lblImg2Font.TabIndex = 20;
+            lblImg2Font.Text = "label9";
+            // 
+            // btnImg2Font
+            // 
+            btnImg2Font.Location = new Point(273, 109);
+            btnImg2Font.Name = "btnImg2Font";
+            btnImg2Font.Size = new Size(75, 23);
+            btnImg2Font.TabIndex = 20;
+            btnImg2Font.Text = "Font";
+            btnImg2Font.UseVisualStyleBackColor = true;
+            btnImg2Font.Click += btnImg2Font_Click;
+            // 
+            // txtImg2Text
+            // 
+            txtImg2Text.Location = new Point(253, 74);
+            txtImg2Text.Name = "txtImg2Text";
+            txtImg2Text.Size = new Size(117, 23);
+            txtImg2Text.TabIndex = 20;
+            txtImg2Text.Visible = false;
+            // 
+            // rbImg2Text
+            // 
+            rbImg2Text.AutoSize = true;
+            rbImg2Text.Location = new Point(268, 43);
+            rbImg2Text.Name = "rbImg2Text";
+            rbImg2Text.Size = new Size(68, 19);
+            rbImg2Text.TabIndex = 21;
+            rbImg2Text.TabStop = true;
+            rbImg2Text.Text = "Use Text";
+            rbImg2Text.UseVisualStyleBackColor = true;
+            // 
+            // rbImg2Image
+            // 
+            rbImg2Image.AutoSize = true;
+            rbImg2Image.Location = new Point(268, 18);
+            rbImg2Image.Name = "rbImg2Image";
+            rbImg2Image.Size = new Size(80, 19);
+            rbImg2Image.TabIndex = 17;
+            rbImg2Image.TabStop = true;
+            rbImg2Image.Text = "Use Image";
+            rbImg2Image.UseVisualStyleBackColor = true;
+            rbImg2Image.CheckedChanged += rbImg2Image_CheckedChanged;
             // 
             // nudOffY2
             // 
@@ -495,6 +560,11 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(lblImg1Font);
+            groupBox1.Controls.Add(btnImg1Font);
+            groupBox1.Controls.Add(txtImg1Text);
+            groupBox1.Controls.Add(rbImg1Text);
+            groupBox1.Controls.Add(rbImg1Image);
             groupBox1.Controls.Add(nudOffY1);
             groupBox1.Controls.Add(nudOffX1);
             groupBox1.Controls.Add(nudPad1);
@@ -512,6 +582,56 @@
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Image 1 (Front Plane)";
+            // 
+            // lblImg1Font
+            // 
+            lblImg1Font.AutoSize = true;
+            lblImg1Font.Location = new Point(257, 149);
+            lblImg1Font.Name = "lblImg1Font";
+            lblImg1Font.Size = new Size(38, 15);
+            lblImg1Font.TabIndex = 19;
+            lblImg1Font.Text = "label9";
+            // 
+            // btnImg1Font
+            // 
+            btnImg1Font.Location = new Point(243, 112);
+            btnImg1Font.Name = "btnImg1Font";
+            btnImg1Font.Size = new Size(75, 23);
+            btnImg1Font.TabIndex = 18;
+            btnImg1Font.Text = "Font";
+            btnImg1Font.UseVisualStyleBackColor = true;
+            btnImg1Font.Click += btnImg1Font_Click;
+            // 
+            // txtImg1Text
+            // 
+            txtImg1Text.Location = new Point(229, 80);
+            txtImg1Text.Name = "txtImg1Text";
+            txtImg1Text.Size = new Size(117, 23);
+            txtImg1Text.TabIndex = 17;
+            txtImg1Text.Visible = false;
+            // 
+            // rbImg1Text
+            // 
+            rbImg1Text.AutoSize = true;
+            rbImg1Text.Location = new Point(243, 50);
+            rbImg1Text.Name = "rbImg1Text";
+            rbImg1Text.Size = new Size(68, 19);
+            rbImg1Text.TabIndex = 16;
+            rbImg1Text.Text = "Use Text";
+            rbImg1Text.UseVisualStyleBackColor = true;
+            // 
+            // rbImg1Image
+            // 
+            rbImg1Image.AutoSize = true;
+            rbImg1Image.Checked = true;
+            rbImg1Image.Location = new Point(243, 25);
+            rbImg1Image.Name = "rbImg1Image";
+            rbImg1Image.Size = new Size(80, 19);
+            rbImg1Image.TabIndex = 15;
+            rbImg1Image.TabStop = true;
+            rbImg1Image.Text = "Use Image";
+            rbImg1Image.UseVisualStyleBackColor = true;
+            rbImg1Image.CheckedChanged += rbImg1Image_CheckedChanged;
             // 
             // nudOffY1
             // 
@@ -712,5 +832,15 @@
         private Label lblFont2;
         private Label lblFont1;
         private Panel panelPreview;
+        private RadioButton rbImg2Text;
+        private RadioButton rbImg2Image;
+        private RadioButton rbImg1Text;
+        private RadioButton rbImg1Image;
+        private Button btnImg1Font;
+        private TextBox txtImg1Text;
+        private Label lblImg1Font;
+        private Label lblImg2Font;
+        private Button btnImg2Font;
+        private TextBox txtImg2Text;
     }
 }
