@@ -115,6 +115,15 @@ namespace DualIllusionGenerator
                 Stencil stencil1 = null, stencil2 = null;
                 if (isDualImageMode)
                 {
+
+                    stretch1 = chkStretch1.Checked;
+                    stretch2 = chkStretch2.Checked;
+                    pad1 = (float)nudPad1.Value;
+                    pad2 = (float)nudPad2.Value;
+                    offX1 = (float)nudOffX1.Value;
+                    offY1 = (float)nudOffY1.Value;
+                    offX2 = (float)nudOffX2.Value;
+                    offY2 = (float)nudOffY2.Value;
                     // Determine Stencil 1
                     if (rbImg1Text.Checked)
                     {
@@ -384,6 +393,15 @@ namespace DualIllusionGenerator
             Stencil stencil1 = null, stencil2 = null;
             if (isDualImageMode)
             {
+
+                stretch1 = chkStretch1.Checked;
+                stretch2 = chkStretch2.Checked;
+                pad1 = (float)nudPad1.Value;
+                pad2 = (float)nudPad2.Value;
+                offX1 = (float)nudOffX1.Value;
+                offY1 = (float)nudOffY1.Value;
+                offX2 = (float)nudOffX2.Value;
+                offY2 = (float)nudOffY2.Value;
                 // Determine Stencil 1
                 if (rbImg1Text.Checked)
                 {
