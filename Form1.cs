@@ -238,8 +238,8 @@ namespace DualIllusionGenerator
         {
             if (isDualImageMode)
             {
-               if(stencil1!=null)grid.ApplyStencil(stencil1, CarvePlane.Front, op1, stretch1, pad1, offX1, offY1);
-               if(stencil2!=null)grid.ApplyStencil(stencil2, CarvePlane.Top, op2, stretch2, pad2, offX2, offY2);
+                if (stencil1 != null) grid.ApplyStencil(stencil1, CarvePlane.Front, op1, stretch1, pad1, offX1, offY1);
+                if (stencil2 != null) grid.ApplyStencil(stencil2, CarvePlane.Top, op2, stretch2, pad2, offX2, offY2);
             }
             else
             {
@@ -481,28 +481,54 @@ namespace DualIllusionGenerator
 
         private void btnLoadImage1_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog())
+            bool unloadMode = btnLoadImage1.Text == "Unload Image 2";
+
+            if (!unloadMode)
             {
-                ofd.Title = "Select Stencil Image 1";
-                ofd.Filter = "Image Files|*.png;*.bmp;*.jpg";
-                if (ofd.ShowDialog() == DialogResult.OK)
+                using (OpenFileDialog ofd = new OpenFileDialog())
                 {
-                    try
+                    ofd.Title = "Select Stencil Image 1";
+                    ofd.Filter = "Image Files|*.png;*.bmp;*.jpg";
+                    if (ofd.ShowDialog() == DialogResult.OK)
                     {
-                        _stencil1 = StencilManager.CreateFromImage(ofd.FileName);
-                        lblImg1Status.Text = $"Loaded: {_stencil1.Width}x{_stencil1.Height}";
-                        OnPreviewSettingChanged(sender, e);
-                    }
-                    catch (AntiAliasingException ex)
-                    {
-                        if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        try
                         {
-                            _stencil1 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
-                            lblImg1Status.Text = $"Loaded (Auto-Fixed): {_stencil1.Width}x{_stencil1.Height}";
+                            _stencil1 = StencilManager.CreateFromImage(ofd.FileName);
+                            UpdateLoadImage1Button();
                             OnPreviewSettingChanged(sender, e);
                         }
+                        catch (AntiAliasingException ex)
+                        {
+                            if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                            {
+                                _stencil1 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
+                                UpdateLoadImage1Button(autoFixed: true);
+                                OnPreviewSettingChanged(sender, e);
+                            }
+                        }
+                        catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                }
+            }
+            else
+            {
+                UpdateLoadImage1Button();
+            }
+
+
+            void UpdateLoadImage1Button(bool autoFixed = false)
+            {
+                if (unloadMode)
+                {
+                    lblImg1Status.Visible = false;
+                    _stencil1 = null;
+                    btnLoadImage1.Text = "Load Image 2";
+                }
+                else
+                {
+                    lblImg1Status.Visible = true;
+                    lblImg1Status.Text = !autoFixed ? $"Loaded: {_stencil1.Width}x{_stencil1.Height}" : $"Loaded (Auto-Fixed): {_stencil1.Width}x{_stencil1.Height}";
+                    btnLoadImage1.Text = "Unload Image 1";
                 }
             }
         }
@@ -523,9 +549,7 @@ namespace DualIllusionGenerator
                         try
                         {
                             _stencil2 = StencilManager.CreateFromImage(ofd.FileName);
-                            lblImg2Status.Visible = true;
-                            lblImg2Status.Text = $"Loaded: {_stencil2.Width}x{_stencil2.Height}";
-                            btnLoadImage2.Text = "Unload Image 2";
+                            UpdateLoadImage2Button();
                             OnPreviewSettingChanged(sender, e);
                         }
                         catch (AntiAliasingException ex)
@@ -533,7 +557,7 @@ namespace DualIllusionGenerator
                             if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                             {
                                 _stencil2 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
-                                lblImg2Status.Text = $"Loaded (Auto-Fixed): {_stencil2.Width}x{_stencil2.Height}";
+                                UpdateLoadImage2Button(autoFixed: true);
                                 OnPreviewSettingChanged(sender, e);
                             }
                         }
@@ -541,11 +565,26 @@ namespace DualIllusionGenerator
                     }
                 }
             }
-            else 
+            else
             {
-                lblImg2Status.Visible = false;
-                _stencil2 = null;
-                btnLoadImage2.Text = "Load Image 2";
+                UpdateLoadImage2Button();
+            }
+
+
+            void UpdateLoadImage2Button(bool autoFixed = false)
+            {
+                if (unloadMode)
+                {
+                    lblImg2Status.Visible = false;
+                    _stencil2 = null;
+                    btnLoadImage2.Text = "Load Image 2";
+                }
+                else
+                {
+                    lblImg2Status.Visible = true;
+                    lblImg2Status.Text = !autoFixed ? $"Loaded: {_stencil2.Width}x{_stencil2.Height}" : $"Loaded (Auto-Fixed): {_stencil2.Width}x{_stencil2.Height}";
+                    btnLoadImage2.Text = "Unload Image 2";
+                }
             }
         }
 
@@ -581,30 +620,42 @@ namespace DualIllusionGenerator
 
         private void rbImg1Image_CheckedChanged(object sender, EventArgs e)
         {
-            bool isText = rbImg1Text.Checked;
-            txtImg1Text.Visible = isText;
-            btnImg1Font.Visible = isText;
-            lblImg1Font.Visible = isText;
-            btnLoadImage1.Visible = !isText;
-            lblImg1Status.Visible = !isText;
+            bool isImage = rbImg1Image.Checked;
+            if (isImage)
+            {
+                btnLoadImage1.Visible = true;
+                btnImg1Font.Visible = false;
+                txtImg1Text.Visible = false;
+                lblImg1Font.Visible = false;
+            }
+            else
+            {
+                btnLoadImage1.Visible = false;
+                btnImg1Font.Visible = true;
+                txtImg1Text.Visible = true;
+                if (lblImg1Font.Text != " ") lblImg1Font.Visible = true;
+            }
+
             OnPreviewSettingChanged(sender, e);
         }
 
         private void rbImg2Image_CheckedChanged(object sender, EventArgs e)
         {
             bool isImage = rbImg2Image.Checked;
-            if (isImage) 
+            if (isImage)
             {
                 btnLoadImage2.Visible = true;
                 btnImg2Font.Visible = false;
                 txtImg2Text.Visible = false;
+                lblImg2Font.Visible = false;
             }
-            else 
+            else
             {
                 btnLoadImage2.Visible = false;
                 btnImg2Font.Visible = true;
                 txtImg2Text.Visible = true;
-            }            
+                if (lblImg2Font.Text != " ") lblImg2Font.Visible = true;
+            }
 
             OnPreviewSettingChanged(sender, e);
         }
@@ -617,6 +668,7 @@ namespace DualIllusionGenerator
                 if (fd.ShowDialog() == DialogResult.OK)
                 {
                     _imgFont1 = fd.Font;
+                    lblImg1Font.Visible = true;
                     lblImg1Font.Text = $"{_imgFont1.Name}";
                     OnPreviewSettingChanged(sender, e);
                 }
@@ -631,6 +683,7 @@ namespace DualIllusionGenerator
                 if (fd.ShowDialog() == DialogResult.OK)
                 {
                     _imgFont2 = fd.Font;
+                    lblImg2Font.Visible = true;
                     lblImg2Font.Text = $"{_imgFont2.Name}";
                     OnPreviewSettingChanged(sender, e);
                 }
@@ -652,5 +705,35 @@ namespace DualIllusionGenerator
         private void labelText1_Click(object sender, EventArgs e) { }
         private void tabDualText_Click(object sender, EventArgs e) { }
         private void groupBox1_Enter(object sender, EventArgs e) { }
+
+        private void rbImg2Text_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkStretch2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rbImg1Text_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtImg1Text_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblImg2Status_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
