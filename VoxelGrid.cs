@@ -168,16 +168,21 @@ public class VoxelGrid
         // 1. Calculate Scaling and Offsets based on the Plane
         if (plane == CarvePlane.Top)
         {
-            // Top plane maps to X and Y.
-            float targetWidth = boundWidth * padMultiplier;
-            float targetHeight = boundHeight * padMultiplier;
+            float targetWidth = Width * padMultiplier;
+            float targetHeight = Height * padMultiplier;
 
             scaleX = targetWidth / stencil.Width;
             scaleY = targetHeight / stencil.Height;
-            uniformScale = stretchToFill ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
 
-            scaledWidth = stencil.Width * uniformScale;
-            scaledHeight = stencil.Height * uniformScale;
+            uniformScale = stretchToFill
+                ? 1.0f   // ← Use independent scaling when stretching
+                : Math.Min(scaleX, scaleY);
+
+            float finalScaleX = stretchToFill ? scaleX : uniformScale;
+            float finalScaleY = stretchToFill ? scaleY : uniformScale;
+
+            scaledWidth = stencil.Width * finalScaleX;
+            scaledHeight = stencil.Height * finalScaleY;
 
             // Center inside the bounding box
             offsetXFinal = centerOffsetX + ((boundWidth - scaledWidth) / 2.0f) + offsetX;
@@ -185,16 +190,21 @@ public class VoxelGrid
         }
         else // Front plane
         {
-            // Front plane maps to X and Z.
-            float targetWidth = boundWidth * padMultiplier;
-            float targetHeight = boundDepth * padMultiplier;
+            float targetWidth = Width * padMultiplier;
+            float targetHeight = Depth * padMultiplier;
 
             scaleX = targetWidth / stencil.Width;
             scaleY = targetHeight / stencil.Height;
-            uniformScale = stretchToFill ? Math.Max(scaleX, scaleY) : Math.Min(scaleX, scaleY);
 
-            scaledWidth = stencil.Width * uniformScale;
-            scaledHeight = stencil.Height * uniformScale;
+            uniformScale = stretchToFill
+                ? 1.0f
+                : Math.Min(scaleX, scaleY);
+
+            float finalScaleX = stretchToFill ? scaleX : uniformScale;
+            float finalScaleY = stretchToFill ? scaleY : uniformScale;
+
+            scaledWidth = stencil.Width * finalScaleX;
+            scaledHeight = stencil.Height * finalScaleY;
 
             offsetXFinal = centerOffsetX + ((boundWidth - scaledWidth) / 2.0f) + offsetX;
             offsetYFinal = centerOffsetZ + ((boundDepth - scaledHeight) / 2.0f) + offsetY;
