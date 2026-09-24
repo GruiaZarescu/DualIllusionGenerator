@@ -1,6 +1,6 @@
 ﻿namespace DualIllusionGenerator
 {
-    partial class Form1
+    partial class DualIllusionGenerator
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DualIllusionGenerator));
             btnExport = new Button();
             VoxelDensityGroupBox = new GroupBox();
             rbDensityUltra = new RadioButton();
@@ -57,6 +58,7 @@
             labelText1 = new Label();
             tabDualImage = new TabPage();
             groupBox2 = new GroupBox();
+            pictureBox2 = new PictureBox();
             lblImg2Font = new Label();
             btnImg2Font = new Button();
             txtImg2Text = new TextBox();
@@ -74,6 +76,7 @@
             label8 = new Label();
             btnLoadImage2 = new Button();
             groupBox1 = new GroupBox();
+            pictureBox1 = new PictureBox();
             lblImg1Font = new Label();
             btnImg1Font = new Button();
             txtImg1Text = new TextBox();
@@ -90,6 +93,8 @@
             cbAction1 = new ComboBox();
             lblImg1Status = new Label();
             btnLoadImage1 = new Button();
+            tabDocumentation = new TabPage();
+            richTextBox1 = new RichTextBox();
             panelPreview = new Panel();
             label9 = new Label();
             TextResolutionGroupBox = new GroupBox();
@@ -102,6 +107,7 @@
             checkBoxEnableSmoothing = new CheckBox();
             smoothTrackBar = new TrackBar();
             lblSmoothAmount = new Label();
+            picLogo = new PictureBox();
             VoxelDensityGroupBox.SuspendLayout();
             CubeDimensionsGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudSizeZ).BeginInit();
@@ -112,15 +118,19 @@
             ((System.ComponentModel.ISupportInitialize)nudExtraLetterSpacing).BeginInit();
             tabDualImage.SuspendLayout();
             groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudOffY2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudOffX2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudPad2).BeginInit();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudOffY1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudOffX1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudPad1).BeginInit();
+            tabDocumentation.SuspendLayout();
             TextResolutionGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)smoothTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)picLogo).BeginInit();
             SuspendLayout();
             // 
             // btnExport
@@ -147,7 +157,6 @@
             VoxelDensityGroupBox.TabIndex = 1;
             VoxelDensityGroupBox.TabStop = false;
             VoxelDensityGroupBox.Text = "Voxel Density";
-            VoxelDensityGroupBox.Enter += VoxelDensityGroupBox_Enter;
             // 
             // rbDensityUltra
             // 
@@ -158,7 +167,6 @@
             rbDensityUltra.TabIndex = 5;
             rbDensityUltra.Text = "Ultra";
             rbDensityUltra.UseVisualStyleBackColor = true;
-            rbDensityUltra.CheckedChanged += rbDensityUltra_CheckedChanged;
             // 
             // rbDensityVeryHigh
             // 
@@ -169,7 +177,6 @@
             rbDensityVeryHigh.TabIndex = 4;
             rbDensityVeryHigh.Text = "Very High";
             rbDensityVeryHigh.UseVisualStyleBackColor = true;
-            rbDensityVeryHigh.CheckedChanged += rbDensityVeryHigh_CheckedChanged;
             // 
             // rbDensityHigh
             // 
@@ -182,7 +189,6 @@
             rbDensityHigh.TabStop = true;
             rbDensityHigh.Text = "High";
             rbDensityHigh.UseVisualStyleBackColor = true;
-            rbDensityHigh.CheckedChanged += rbDensityHigh_CheckedChanged;
             // 
             // rbDensityMedium
             // 
@@ -193,7 +199,6 @@
             rbDensityMedium.TabIndex = 2;
             rbDensityMedium.Text = "Medium";
             rbDensityMedium.UseVisualStyleBackColor = true;
-            rbDensityMedium.CheckedChanged += rbDensityMedium_CheckedChanged;
             // 
             // rbDensityLow
             // 
@@ -204,7 +209,6 @@
             rbDensityLow.TabIndex = 1;
             rbDensityLow.Text = "Low";
             rbDensityLow.UseVisualStyleBackColor = true;
-            rbDensityLow.CheckedChanged += rbDensityLow_CheckedChanged;
             // 
             // rbDensityVeryLow
             // 
@@ -231,7 +235,6 @@
             CubeDimensionsGroupBox.TabIndex = 2;
             CubeDimensionsGroupBox.TabStop = false;
             CubeDimensionsGroupBox.Text = "Box Dimensions(mm)";
-            CubeDimensionsGroupBox.Enter += CubeDimensionsGroupBox_Enter;
             // 
             // nudSizeZ
             // 
@@ -253,7 +256,6 @@
             nudSizeY.Size = new Size(120, 23);
             nudSizeY.TabIndex = 4;
             nudSizeY.Value = new decimal(new int[] { 50, 0, 0, 0 });
-            nudSizeY.ValueChanged += nudSizeY_ValueChanged;
             // 
             // nudSizeX
             // 
@@ -264,7 +266,6 @@
             nudSizeX.Size = new Size(120, 23);
             nudSizeX.TabIndex = 3;
             nudSizeX.Value = new decimal(new int[] { 200, 0, 0, 0 });
-            nudSizeX.ValueChanged += nudSizeX_ValueChanged;
             // 
             // labelHeight
             // 
@@ -299,6 +300,7 @@
             // 
             tabModeSelector.Controls.Add(tabDualText);
             tabModeSelector.Controls.Add(tabDualImage);
+            tabModeSelector.Controls.Add(tabDocumentation);
             tabModeSelector.Location = new Point(35, 202);
             tabModeSelector.Name = "tabModeSelector";
             tabModeSelector.SelectedIndex = 0;
@@ -342,7 +344,6 @@
             lblExtraDist.Size = new Size(123, 15);
             lblExtraDist.TabIndex = 12;
             lblExtraDist.Text = "Extra Letter Spacing %";
-            lblExtraDist.Click += label10_Click;
             // 
             // lblFont2
             // 
@@ -352,6 +353,7 @@
             lblFont2.Size = new Size(44, 15);
             lblFont2.TabIndex = 11;
             lblFont2.Text = "label10";
+            lblFont2.Visible = false;
             // 
             // lblFont1
             // 
@@ -361,6 +363,7 @@
             lblFont1.Size = new Size(38, 15);
             lblFont1.TabIndex = 10;
             lblFont1.Text = "label9";
+            lblFont1.Visible = false;
             // 
             // btnFont2
             // 
@@ -425,9 +428,11 @@
             tabDualImage.TabIndex = 1;
             tabDualImage.Text = "Dual Image";
             tabDualImage.UseVisualStyleBackColor = true;
+            tabDualImage.Click += tabDualImage_Click;
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(pictureBox2);
             groupBox2.Controls.Add(lblImg2Font);
             groupBox2.Controls.Add(btnImg2Font);
             groupBox2.Controls.Add(txtImg2Text);
@@ -451,6 +456,15 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Image 2 (Top Plane)";
             groupBox2.Enter += groupBox2_Enter;
+            // 
+            // pictureBox2
+            // 
+            pictureBox2.Location = new Point(256, 74);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(114, 103);
+            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox2.TabIndex = 21;
+            pictureBox2.TabStop = false;
             // 
             // lblImg2Font
             // 
@@ -479,7 +493,6 @@
             txtImg2Text.Size = new Size(117, 23);
             txtImg2Text.TabIndex = 20;
             txtImg2Text.Visible = false;
-            txtImg2Text.TextChanged += txtImg2Text_TextChanged;
             // 
             // rbImg2Text
             // 
@@ -490,7 +503,6 @@
             rbImg2Text.TabIndex = 21;
             rbImg2Text.Text = "Use Text";
             rbImg2Text.UseVisualStyleBackColor = true;
-            rbImg2Text.CheckedChanged += rbImg2Text_CheckedChanged;
             // 
             // rbImg2Image
             // 
@@ -511,7 +523,6 @@
             nudOffY2.Name = "nudOffY2";
             nudOffY2.Size = new Size(120, 23);
             nudOffY2.TabIndex = 20;
-            nudOffY2.ValueChanged += nudOffY2_ValueChanged;
             // 
             // chkStretch2
             // 
@@ -522,7 +533,6 @@
             chkStretch2.TabIndex = 9;
             chkStretch2.Text = "Stretch to fit (Ignore Aspect Ratio)";
             chkStretch2.UseVisualStyleBackColor = true;
-            chkStretch2.CheckedChanged += chkStretch2_CheckedChanged;
             // 
             // nudOffX2
             // 
@@ -530,7 +540,6 @@
             nudOffX2.Name = "nudOffX2";
             nudOffX2.Size = new Size(120, 23);
             nudOffX2.TabIndex = 19;
-            nudOffX2.ValueChanged += nudOffX2_ValueChanged;
             // 
             // label2
             // 
@@ -549,7 +558,6 @@
             nudPad2.Size = new Size(120, 23);
             nudPad2.TabIndex = 18;
             nudPad2.Value = new decimal(new int[] { 10, 0, 0, 0 });
-            nudPad2.ValueChanged += nudPad2_ValueChanged;
             // 
             // label6
             // 
@@ -588,7 +596,6 @@
             lblImg2Status.TabIndex = 5;
             lblImg2Status.Text = "imgStatus";
             lblImg2Status.Visible = false;
-            lblImg2Status.Click += lblImg2Status_Click;
             // 
             // label8
             // 
@@ -611,6 +618,7 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(pictureBox1);
             groupBox1.Controls.Add(lblImg1Font);
             groupBox1.Controls.Add(btnImg1Font);
             groupBox1.Controls.Add(txtImg1Text);
@@ -633,7 +641,15 @@
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Image 1 (Front Plane)";
-            groupBox1.Enter += groupBox1_Enter_1;
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Location = new Point(232, 75);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(114, 103);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 20;
+            pictureBox1.TabStop = false;
             // 
             // lblImg1Font
             // 
@@ -662,7 +678,6 @@
             txtImg1Text.Size = new Size(117, 23);
             txtImg1Text.TabIndex = 17;
             txtImg1Text.Visible = false;
-            txtImg1Text.TextChanged += txtImg1Text_TextChanged;
             // 
             // rbImg1Text
             // 
@@ -673,7 +688,6 @@
             rbImg1Text.TabIndex = 16;
             rbImg1Text.Text = "Use Text";
             rbImg1Text.UseVisualStyleBackColor = true;
-            rbImg1Text.CheckedChanged += rbImg1Text_CheckedChanged;
             // 
             // rbImg1Image
             // 
@@ -696,7 +710,6 @@
             nudOffY1.Name = "nudOffY1";
             nudOffY1.Size = new Size(120, 23);
             nudOffY1.TabIndex = 14;
-            nudOffY1.ValueChanged += nudOffY1_ValueChanged;
             // 
             // nudOffX1
             // 
@@ -706,7 +719,6 @@
             nudOffX1.Name = "nudOffX1";
             nudOffX1.Size = new Size(120, 23);
             nudOffX1.TabIndex = 13;
-            nudOffX1.ValueChanged += nudOffX1_ValueChanged;
             // 
             // nudPad1
             // 
@@ -716,7 +728,6 @@
             nudPad1.Size = new Size(120, 23);
             nudPad1.TabIndex = 12;
             nudPad1.Value = new decimal(new int[] { 10, 0, 0, 0 });
-            nudPad1.ValueChanged += nudPad1_ValueChanged;
             // 
             // label5
             // 
@@ -784,7 +795,6 @@
             lblImg1Status.TabIndex = 5;
             lblImg1Status.Text = "imgStatus";
             lblImg1Status.Visible = false;
-            lblImg1Status.Click += lblImg1Status_Click;
             // 
             // btnLoadImage1
             // 
@@ -796,13 +806,38 @@
             btnLoadImage1.UseVisualStyleBackColor = true;
             btnLoadImage1.Click += btnLoadImage1_Click;
             // 
+            // tabDocumentation
+            // 
+            tabDocumentation.Controls.Add(richTextBox1);
+            tabDocumentation.Location = new Point(4, 24);
+            tabDocumentation.Name = "tabDocumentation";
+            tabDocumentation.Padding = new Padding(3);
+            tabDocumentation.Size = new Size(795, 227);
+            tabDocumentation.TabIndex = 2;
+            tabDocumentation.Text = "Documentation";
+            tabDocumentation.UseVisualStyleBackColor = true;
+            tabDocumentation.Click += tabPage1_Click;
+            // 
+            // richTextBox1
+            // 
+            richTextBox1.BackColor = Color.FromArgb(40, 40, 40);
+            richTextBox1.Dock = DockStyle.Fill;
+            richTextBox1.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            richTextBox1.ForeColor = Color.FromArgb(220, 180, 60);
+            richTextBox1.Location = new Point(3, 3);
+            richTextBox1.Name = "richTextBox1";
+            richTextBox1.ReadOnly = true;
+            richTextBox1.ScrollBars = RichTextBoxScrollBars.Vertical;
+            richTextBox1.Size = new Size(789, 221);
+            richTextBox1.TabIndex = 0;
+            richTextBox1.Text = "sdfsdf";
+            // 
             // panelPreview
             // 
             panelPreview.Location = new Point(35, 29);
             panelPreview.Name = "panelPreview";
             panelPreview.Size = new Size(392, 161);
             panelPreview.TabIndex = 3;
-            panelPreview.Paint += panelPreview_Paint;
             // 
             // label9
             // 
@@ -812,7 +847,6 @@
             label9.Size = new Size(85, 15);
             label9.TabIndex = 4;
             label9.Text = "Model Preview";
-            label9.Click += label9_Click;
             // 
             // TextResolutionGroupBox
             // 
@@ -922,13 +956,22 @@
             lblSmoothAmount.Size = new Size(113, 15);
             lblSmoothAmount.TabIndex = 9;
             lblSmoothAmount.Text = "Smoothing Amount";
-            lblSmoothAmount.Click += lblSmoothAmount_Click;
             // 
-            // Form1
+            // picLogo
+            // 
+            picLogo.Location = new Point(57, 473);
+            picLogo.Name = "picLogo";
+            picLogo.Size = new Size(287, 62);
+            picLogo.SizeMode = PictureBoxSizeMode.Zoom;
+            picLogo.TabIndex = 10;
+            picLogo.TabStop = false;
+            // 
+            // DualIllusionGenerator
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(860, 561);
+            Controls.Add(picLogo);
             Controls.Add(lblSmoothAmount);
             Controls.Add(smoothTrackBar);
             Controls.Add(checkBoxEnableSmoothing);
@@ -939,8 +982,9 @@
             Controls.Add(CubeDimensionsGroupBox);
             Controls.Add(VoxelDensityGroupBox);
             Controls.Add(btnExport);
-            Name = "Form1";
-            Text = "Form1";
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Name = "DualIllusionGenerator";
+            Text = "Dual Illusion Generator 1.0";
             Load += Form1_Load;
             VoxelDensityGroupBox.ResumeLayout(false);
             VoxelDensityGroupBox.PerformLayout();
@@ -956,17 +1000,21 @@
             tabDualImage.ResumeLayout(false);
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudOffY2).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudOffX2).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudPad2).EndInit();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudOffY1).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudOffX1).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudPad1).EndInit();
+            tabDocumentation.ResumeLayout(false);
             TextResolutionGroupBox.ResumeLayout(false);
             TextResolutionGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)smoothTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)picLogo).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1047,5 +1095,10 @@
         private Label lblSmoothAmount;
         private Label lblExtraDist;
         private NumericUpDown nudExtraLetterSpacing;
+        private PictureBox pictureBox2;
+        private PictureBox pictureBox1;
+        private PictureBox picLogo;
+        private TabPage tabDocumentation;
+        private RichTextBox richTextBox1;
     }
 }

@@ -1,4 +1,5 @@
 using HelixToolkit.Wpf;
+using System.IO;
 using System.Windows.Forms.Integration;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -7,7 +8,7 @@ using static VoxelGrid;
 
 namespace DualIllusionGenerator
 {
-    public partial class Form1 : Form
+    public partial class DualIllusionGenerator : Form
     {
         private Stencil _stencil1;
         private Stencil _stencil2;
@@ -24,11 +25,15 @@ namespace DualIllusionGenerator
         private CancellationTokenSource _previewCts;
         private float LetterSpacingPercent = 15f;
 
-        public Form1()
+        public DualIllusionGenerator()
         {
+
+
             InitializeComponent();
             SetupPreview();
+            SetupLogo();
             WireUpPreviewTriggers();
+            SetupDocumentationText();
         }
 
         // ─── PREVIEW SETUP ────────────────────────────────────────────────────────
@@ -49,6 +54,19 @@ namespace DualIllusionGenerator
 
             _previewDebounce = new System.Windows.Forms.Timer { Interval = 400 };
             _previewDebounce.Tick += (s, e) => { _previewDebounce.Stop(); _ = RegeneratePreviewAsync(); };
+        }
+
+        private void SetupDocumentationText()
+        {
+            richTextBox1.Text = DocumentationText.FullText;
+        }
+
+        private void SetupLogo()
+        {
+
+            picLogo.Image = Properties.Resources.DualIllusionGeneratorLogo;
+            Controls.Add(picLogo);
+            picLogo.BringToFront();
         }
 
         public float GetTextResolution()
@@ -91,6 +109,16 @@ namespace DualIllusionGenerator
         {
             _previewDebounce.Stop();
             await RegeneratePreviewAsync();
+        }
+
+        private void ClearPreview()
+        {
+            if (_lettersModel != null)
+            {
+                _viewport.Children.Remove(_lettersModel);
+                _lettersModel = null;
+            }
+            _lastPreviewGrid = null;
         }
 
         private async Task RegeneratePreviewAsync()
@@ -163,7 +191,7 @@ namespace DualIllusionGenerator
                     // Validation
                     if (stencil1 == null && stencil2 == null)
                     {
-                        // In preview, just return. In export, show a message box
+                        ClearPreview();
                         return;
                     }
                 }
@@ -176,12 +204,17 @@ namespace DualIllusionGenerator
                     int lz = (int)Math.Floor(sizeZ / voxelSizeMm);
                     if (cx < 1 || cy < 1 || lz < 1) return null;
 
+
                     int baseVox = 0;
                     if (!isDualImageMode)
                     {
                         float baseMm = Math.Max(3f, Math.Min(7f, sizeZ * 0.05f));
                         baseVox = Math.Max(1, (int)Math.Ceiling(baseMm / voxelSizeMm));
                     }
+
+                    long previewVoxelCount = (long)cx * cy * (lz + baseVox);
+                    if (previewVoxelCount > 150_000_000L) // preview-safe ceiling, well under Export's 2B warning
+                        return null; // silently skip — too dense to preview live; user can still Export
 
                     var g = new VoxelGrid(cx, cy, lz + baseVox, voxelSizeMm);
                     BuildGrid(g, isDualImageMode,
@@ -246,6 +279,11 @@ namespace DualIllusionGenerator
                 _viewport.ZoomExtents(0);
             }
             catch (OperationCanceledException) { }
+            catch (Exception)
+            {
+                // A preview-generation failure should never crash the app —
+                // just leave the last good preview showing (or clear it).
+            }
         }
 
         // ─── SHARED GRID BUILDER ──────────────────────────────────────────────────
@@ -425,6 +463,7 @@ namespace DualIllusionGenerator
             CarveOperation op2 = ParseCarveOperation(cbAction2, CarveOperation.Cut);
             bool stretch1 = false, stretch2 = false;
             float pad1 = 0, pad2 = 0, offX1 = 0, offY1 = 0, offX2 = 0, offY2 = 0;
+            bool enableSmoothing = checkBoxEnableSmoothing.Checked;
             Stencil localStencil1 = null, localStencil2 = null;
             string text1 = "", text2 = "";
             Font localFont1 = null, localFont2 = null;
@@ -515,7 +554,7 @@ namespace DualIllusionGenerator
                                     letterVoxelCountZ, baseThicknessVoxels);
                             }
 
-                            if (checkBoxEnableSmoothing.Checked)
+                            if (enableSmoothing)
                             {
                                 MeshData mesh = VoxelMesher.Generate(grid, isoLevel: 0.5f);
                                 MeshWelder.Weld(mesh);
@@ -548,7 +587,7 @@ namespace DualIllusionGenerator
 
         private void btnLoadImage1_Click(object sender, EventArgs e)
         {
-            bool unloadMode = btnLoadImage1.Text == "Unload Image 2";
+            bool unloadMode = btnLoadImage1.Text == "Unload Image 1";
 
             if (!unloadMode)
             {
@@ -561,6 +600,8 @@ namespace DualIllusionGenerator
                         try
                         {
                             _stencil1 = StencilManager.CreateFromImage(ofd.FileName);
+                            pictureBox1?.Image?.Dispose();
+                            pictureBox1.Image = LoadPreviewImage(ofd.FileName);
                             UpdateLoadImage1Button();
                             OnPreviewSettingChanged(sender, e);
                         }
@@ -569,6 +610,8 @@ namespace DualIllusionGenerator
                             if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                             {
                                 _stencil1 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
+                                pictureBox1.Image?.Dispose();
+                                pictureBox1.Image = LoadPreviewImage(ofd.FileName);
                                 UpdateLoadImage1Button(autoFixed: true);
                                 OnPreviewSettingChanged(sender, e);
                             }
@@ -589,7 +632,10 @@ namespace DualIllusionGenerator
                 {
                     lblImg1Status.Visible = false;
                     _stencil1 = null;
-                    btnLoadImage1.Text = "Load Image 2";
+                    pictureBox1?.Image?.Dispose();
+                    pictureBox1.Image = null;
+                    btnLoadImage1.Text = "Load Image 1";
+                    OnPreviewSettingChanged(sender, e);
                 }
                 else
                 {
@@ -616,6 +662,8 @@ namespace DualIllusionGenerator
                         try
                         {
                             _stencil2 = StencilManager.CreateFromImage(ofd.FileName);
+                            pictureBox2?.Image?.Dispose();
+                            pictureBox2.Image = LoadPreviewImage(ofd.FileName);
                             UpdateLoadImage2Button();
                             OnPreviewSettingChanged(sender, e);
                         }
@@ -624,6 +672,8 @@ namespace DualIllusionGenerator
                             if (MessageBox.Show(ex.Message, "Anti-Aliasing Detected", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                             {
                                 _stencil2 = StencilManager.CreateFromImage(ofd.FileName, autoFix: true);
+                                pictureBox2.Image?.Dispose();
+                                pictureBox2.Image = LoadPreviewImage(ofd.FileName);
                                 UpdateLoadImage2Button(autoFixed: true);
                                 OnPreviewSettingChanged(sender, e);
                             }
@@ -644,7 +694,10 @@ namespace DualIllusionGenerator
                 {
                     lblImg2Status.Visible = false;
                     _stencil2 = null;
+                    pictureBox2?.Image?.Dispose();
+                    pictureBox2.Image = null;
                     btnLoadImage2.Text = "Load Image 2";
+                    OnPreviewSettingChanged(sender, e);
                 }
                 else
                 {
@@ -665,6 +718,7 @@ namespace DualIllusionGenerator
                 if (fd.ShowDialog() == DialogResult.OK)
                 {
                     _font1 = fd.Font;
+                    lblFont1.Visible = true;
                     lblFont1.Text = $"{_font1.Name} ({_font1.Size})";
                     OnPreviewSettingChanged(sender, e);
                 }
@@ -679,6 +733,7 @@ namespace DualIllusionGenerator
                 if (fd.ShowDialog() == DialogResult.OK)
                 {
                     _font2 = fd.Font;
+                    lblFont2.Visible = true;
                     lblFont2.Text = $"{_font2.Name} ({_font2.Size})";
                     OnPreviewSettingChanged(sender, e);
                 }
@@ -694,10 +749,12 @@ namespace DualIllusionGenerator
                 btnImg1Font.Visible = false;
                 txtImg1Text.Visible = false;
                 lblImg1Font.Visible = false;
+                pictureBox1.Visible = true;
             }
             else
             {
                 btnLoadImage1.Visible = false;
+                pictureBox1.Visible = false;
                 btnImg1Font.Visible = true;
                 txtImg1Text.Visible = true;
                 if (lblImg1Font.Text != " ") lblImg1Font.Visible = true;
@@ -715,12 +772,14 @@ namespace DualIllusionGenerator
                 btnImg2Font.Visible = false;
                 txtImg2Text.Visible = false;
                 lblImg2Font.Visible = false;
+                pictureBox2.Visible = true;
             }
             else
             {
                 btnLoadImage2.Visible = false;
                 btnImg2Font.Visible = true;
                 txtImg2Text.Visible = true;
+                pictureBox2.Visible = false;
                 if (lblImg2Font.Text != " ") lblImg2Font.Visible = true;
             }
 
@@ -769,6 +828,15 @@ namespace DualIllusionGenerator
             };
         }
 
+        private static Image LoadPreviewImage(string path)
+        {
+            byte[] bytes = File.ReadAllBytes(path);
+            using (var ms = new MemoryStream(bytes))
+            {
+                return Image.FromStream(ms); // fully decoded in memory; ms can be disposed safely
+            }
+        }
+
         // ─── DEAD DESIGNER EVENT STUBS ────────────────────────────────────────────
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e) { }
@@ -784,131 +852,6 @@ namespace DualIllusionGenerator
         private void labelText1_Click(object sender, EventArgs e) { }
         private void tabDualText_Click(object sender, EventArgs e) { }
         private void groupBox1_Enter(object sender, EventArgs e) { }
-
-        private void rbImg2Text_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void chkStretch2_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void groupBox1_Enter_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rbImg1Text_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtImg1Text_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblImg2Status_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudPad2_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudOffX2_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudOffY2_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudPad1_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudOffX1_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudOffY1_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void lblImg1Status_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void CubeDimensionsGroupBox_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudSizeY_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudSizeX_ValueChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panelPreview_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void rbDensityLow_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rbDensityMedium_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rbDensityHigh_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rbDensityVeryHigh_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void rbDensityUltra_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void VoxelDensityGroupBox_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtImg2Text_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label9_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void smoothTrackBar_Scroll(object sender, EventArgs e)
         {
@@ -929,25 +872,30 @@ namespace DualIllusionGenerator
             }
         }
 
+        private void nudExtraLetterSpacing_ValueChanged(object sender, EventArgs e)
+        {
+            LetterSpacingPercent = (float)nudExtraLetterSpacing.Value;
+            OnPreviewSettingChanged(sender, e);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPage1_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
 
         }
 
-        private void lblSmoothAmount_Click(object sender, EventArgs e)
+        private void tabDualImage_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void nudExtraLetterSpacing_ValueChanged(object sender, EventArgs e)
-        {
-            LetterSpacingPercent = (float)nudExtraLetterSpacing.Value;
-            OnPreviewSettingChanged(sender, e);
         }
     }
 }

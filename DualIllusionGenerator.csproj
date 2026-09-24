@@ -7,10 +7,45 @@
 	 <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>DualIllusionGeneratorIcon.ico</ApplicationIcon>
+    <PackageIcon>DualIllusionGeneratorIcon.ico</PackageIcon>
+    <AssemblyTitle></AssemblyTitle>
+    <Title>Dual Illusion Generator</Title>
+    <PackageId>DualIllusionGenerator</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>GRZ Prints</Authors>
+    <Company />
+    <Product>Dual Illusion Generator</Product>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="DualIllusionGeneratorIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\Downloads\DualIllusionGeneratorIcon.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="HelixToolkit.Wpf" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
